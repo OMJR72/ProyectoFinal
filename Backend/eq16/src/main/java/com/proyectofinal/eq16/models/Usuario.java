@@ -21,11 +21,10 @@ public class Usuario{
     private String email;
 
     @Column(nullable = false)
-    private String contrase;
+    private String password;
 
     @ManyToOne
-    @JoinColumn(name = "rol_id")
-    @Column(nullable = false)
+    @JoinColumn(name = "rol_id", nullable = false)
     private Rol rol;
 
     @Column(nullable = false)
@@ -37,11 +36,11 @@ public class Usuario{
     public Usuario() {
     }
 
-    public Usuario(String nombre, String apellido, String email, String contrase, Rol rol, LocalDate fecha_registro, Long puntos){
+    public Usuario(String nombre, String apellido, String email, String password, Rol rol, LocalDate fecha_registro, Long puntos){
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
-        this.contrase = contrase;
+        this.password = password;
         this.rol = rol;
         this.fecha_registro = fecha_registro;
         this.puntos = puntos;
@@ -79,12 +78,12 @@ public class Usuario{
         this.email = email;
     }
 
-    public String getContrase() {
-        return contrase;
+    public String getpassword() {
+        return password;
     }
 
-    public void setContrase(String contrase) {
-        this.contrase = contrase;
+    public void setpassword(String password) {
+        this.password = password;
     }
 
     public Rol getRol() {
