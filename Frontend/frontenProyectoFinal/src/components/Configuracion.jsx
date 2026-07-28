@@ -136,7 +136,6 @@ export default function Configuracion() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          {/* Tabs */}
           <div className="flex gap-6 border-b border-slate-200 mb-6">
             {TABS.map((tab) => (
               <button
@@ -163,7 +162,6 @@ export default function Configuracion() {
           {tabActiva === "Seguridad" && <PanelSeguridad />}
         </div>
 
-        {/* Paneles secundarios fijos (visibles siempre, como en el mock) */}
         <div className="space-y-6">
           <PanelPreferenciasPomodoro />
           <PanelSeguridad />

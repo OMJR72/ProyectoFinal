@@ -19,7 +19,6 @@ const NAV_ITEMS = [
 export default function Sidebar({ activeTab, setActiveTab }) {
   return (
     <aside className="w-60 shrink-0 bg-slate-900 text-slate-200 flex flex-col h-screen sticky top-0">
-      {/* Logo */}
       <div className="flex items-center gap-2 px-6 py-6">
         <img
             src="/Logo_Proyecto.png"
@@ -31,7 +30,6 @@ export default function Sidebar({ activeTab, setActiveTab }) {
         </span>
       </div>
 
-      {/* Navegación */}
       <nav className="flex-1 px-3 space-y-1">
         {NAV_ITEMS.map(({ key, label, icon: Icon }) => {
           const isActive = activeTab === key;

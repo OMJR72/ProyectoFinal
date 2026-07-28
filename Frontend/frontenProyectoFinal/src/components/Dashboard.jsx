@@ -35,7 +35,6 @@ function GraficaProductividad() {
 
   return (
     <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-44">
-      {/* barras */}
       {productividadSemanal.map((item, i) => {
         const barHeight = (item.horas / max) * (height - padding * 2);
         const x = padding + barWidth * i + barWidth * 0.2;
@@ -53,7 +52,6 @@ function GraficaProductividad() {
         );
       })}
 
-      {/* línea de tendencia */}
       <path
         d={linePath}
         fill="none"
@@ -66,7 +64,6 @@ function GraficaProductividad() {
         <circle key={i} cx={p.x} cy={p.y} r={3} className="fill-slate-900" />
       ))}
 
-      {/* etiquetas de días */}
       {productividadSemanal.map((item, i) => (
         <text
           key={item.dia}
@@ -150,7 +147,6 @@ export default function Dashboard() {
         </span>
       </div>
 
-      {/* Gráfica de productividad */}
       <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6">
         <h3 className="text-base font-semibold text-slate-900 mb-2">
           Gráfica de Productividad Semanal
@@ -158,7 +154,6 @@ export default function Dashboard() {
         <GraficaProductividad />
       </div>
 
-      {/* Pomodoro compacto */}
       <div className="bg-white rounded-xl border border-slate-200 p-6 flex flex-col items-center">
         <h3 className="self-start text-base font-semibold text-slate-900 mb-4">
           Pomodoro
@@ -177,7 +172,6 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* Tareas prioritarias */}
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <h3 className="text-base font-semibold text-slate-900 mb-4">
           Tareas Prioritarias
@@ -202,7 +196,6 @@ export default function Dashboard() {
         </ul>
       </div>
 
-      {/* Actividad reciente */}
       <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6">
         <h3 className="text-base font-semibold text-slate-900 mb-4">
           Actividad Reciente

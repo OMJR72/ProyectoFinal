@@ -73,7 +73,6 @@ export default function Pomodoro() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Temporizador central */}
       <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-8 flex flex-col items-center">
         <div className="w-full mb-6">
           <h2 className="text-xl font-bold text-slate-900">
@@ -98,7 +97,6 @@ export default function Pomodoro() {
           </button>
         </div>
 
-        {/* Secuencia de ciclos */}
         <div className="flex items-center gap-2 mt-8 flex-wrap justify-center">
           {ciclosPomodoro.map((ciclo, i) => (
             <React.Fragment key={ciclo.id}>
@@ -116,7 +114,6 @@ export default function Pomodoro() {
         </div>
       </div>
 
-      {/* Panel lateral de configuración */}
       <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-6">
         <h3 className="text-base font-semibold text-slate-900">
           Configuración Rápida

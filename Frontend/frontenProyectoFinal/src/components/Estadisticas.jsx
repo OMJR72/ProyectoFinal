@@ -163,7 +163,6 @@ export default function Estadisticas() {
         </div>
       </div>
 
-      {/* Tabla de distribución */}
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <h3 className="text-base font-semibold text-slate-900 mb-4">
           Distribución por Materia/Proyecto
