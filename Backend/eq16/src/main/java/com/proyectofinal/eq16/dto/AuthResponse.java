@@ -1,9 +1,17 @@
 package com.proyectofinal.eq16.dto;
 
 public class AuthResponse {
+
     private String token;
     private String type = "Bearer";
     private String email;
+
+    public AuthResponse() {
+    }
+
+    public AuthResponse(String token) {
+        this.token = token;
+    }
 
     public AuthResponse(String token, String email) {
         this.token = token;
@@ -33,6 +41,4 @@ public class AuthResponse {
     public void setEmail(String email) {
         this.email = email;
     }
-
-    
 }

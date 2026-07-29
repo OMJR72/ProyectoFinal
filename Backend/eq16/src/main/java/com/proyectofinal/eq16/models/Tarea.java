@@ -1,11 +1,19 @@
 package com.proyectofinal.eq16.models;
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table (name = "tareas")
-public class Tareas {
+public class Tarea {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,10 +39,10 @@ public class Tareas {
     @JoinColumn(name = "id_usuario")
     private Usuario Usuario;
 
-    public Tareas() {
+    public Tarea() {
     }
 
-    public Tareas(Long id_tarea, String titulo, String descripcion, LocalDate fecha, LocalDate fecha_limite, Boolean estado, Usuario Usuario) {
+    public Tarea(Long id_tarea, String titulo, String descripcion, LocalDate fecha, LocalDate fecha_limite, Boolean estado, Usuario Usuario) {
         this.id_tarea = id_tarea;
         this.titulo = titulo;
         this.descripcion = descripcion;

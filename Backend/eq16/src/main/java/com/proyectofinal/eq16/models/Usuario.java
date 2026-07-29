@@ -108,7 +108,5 @@ public class Usuario{
 
     public void setPuntos(Long puntos) {
         this.puntos = puntos;
-    }
-
-    
+    }   
 }

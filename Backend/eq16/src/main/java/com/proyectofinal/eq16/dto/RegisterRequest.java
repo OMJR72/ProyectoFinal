@@ -1,9 +1,9 @@
 package com.proyectofinal.eq16.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-public class RegisterRequest{
-
+public class RegisterRequest {
     @NotBlank(message = "El nombre es obligatorio")
     private String nombre;
 
@@ -14,23 +14,28 @@ public class RegisterRequest{
     private String password;
 
     @NotBlank(message = "El email es obligatorio")
+    @Email(message = "Debe ser un correo válido")
     private String email;
 
     private Long idRol;
 
-    public RegisterRequest(String nombre, String password, String email, Long idRol) {
-        this.nombre = nombre;
-        this.password = password;
-        this.email = email;
-        this.idRol = idRol;
+    public RegisterRequest() {
     }
 
-    public String getnombre() {
+    public String getNombre() {
         return nombre;
     }
 
-    public void setnombre(String nombre) {
+    public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public String getApellido() {
+        return apellido;
+    }
+
+    public void setApellido(String apellido) {
+        this.apellido = apellido;
     }
 
     public String getPassword() {
@@ -55,13 +60,5 @@ public class RegisterRequest{
 
     public void setIdRol(Long idRol) {
         this.idRol = idRol;
-    }
-
-    public String getApellido() {
-        return apellido;
-    }
-
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
     }
 }

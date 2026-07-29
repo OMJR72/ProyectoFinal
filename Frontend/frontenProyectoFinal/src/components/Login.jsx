@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import logoImg from '../assets/Logo_Proyecto.png';
-import '../css/Login.css'; 
+import { loginUser, registerUser } from '../services/authService';
+import '../styles/Login.css';
 
 export default function Login({ onLoginSuccess }) {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -12,22 +13,39 @@ export default function Login({ onLoginSuccess }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (e) => {
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage('');
+
     if (isRegistering && password !== confirmPassword) {
-      alert('Las contraseñas no coinciden');
+      setErrorMessage('Las contraseñas no coinciden');
       return;
     }
 
-    if (onLoginSuccess) {
-      onLoginSuccess({
-        name: isRegistering ? name : 'Carlos G.',
-        email,
-      });
+    setLoading(true);
+
+    try {
+      if (isRegistering) {
+        await registerUser(name, email, password);
+        alert('¡Registro exitoso! Ahora puedes iniciar sesión.');
+        setIsRegistering(false);
+        setPassword('');
+        setConfirmPassword('');
+      } else {
+        const response = await loginUser(email, password);
+        if (onLoginSuccess) {
+          onLoginSuccess(response.user);
+        }
+      }
+    } catch (error) {
+      setErrorMessage(error.message || 'Ocurrió un error inesperado');
+    } finally {
+      setLoading(false);
     }
   };
-
-  const handleGoogleAuth = () => {};
 
   return (
     <div className="login-container">
@@ -36,11 +54,7 @@ export default function Login({ onLoginSuccess }) {
         <div className="text-center space-y-2">
           {logoImg && (
             <div className="flex justify-center mb-1">
-              <img 
-                src={logoImg} 
-                alt="Logo del proyecto" 
-                className="w-14 h-14 object-contain"
-              />
+              <img src={logoImg} alt="Logo del proyecto" className="w-14 h-14 object-contain" />
             </div>
           )}
           <h1 className="text-3xl font-semibold text-[#A78BFA] tracking-tight">
@@ -48,41 +62,41 @@ export default function Login({ onLoginSuccess }) {
           </h1>
         </div>
 
+        {errorMessage && (
+          <div className="bg-red-100 border border-red-300 text-red-600 text-xs p-2.5 rounded-xl text-center">
+            {errorMessage}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4 text-left">
           {isRegistering && (
             <div className="space-y-1">
-              <label className="block text-xs font-semibold text-gray-700">
-                Nombre Completo
-              </label>
+              <label className="block text-xs font-semibold text-gray-700">Nombre Completo</label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Tu nombre completo"
-                className="w-full px-4 py-2 bg-[#E2E8F0]/70 border border-gray-300 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
+                className="w-full px-4 py-2 bg-[#E2E8F0]/70 border border-gray-300 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#A78BFA]"
               />
             </div>
           )}
 
           <div className="space-y-1">
-            <label className="block text-xs font-semibold text-gray-700">
-              Correo Electrónico
-            </label>
+            <label className="block text-xs font-semibold text-gray-700">Correo Electrónico</label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="ejemplo@correo.com"
-              className="w-full px-4 py-2 bg-[#E2E8F0]/70 border border-gray-300 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
+              className="w-full px-4 py-2 bg-[#E2E8F0]/70 border border-gray-300 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#A78BFA]"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="block text-xs font-semibold text-gray-700">
-              Contraseña
-            </label>
+            <label className="block text-xs font-semibold text-gray-700">Contraseña</label>
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
@@ -90,7 +104,7 @@ export default function Login({ onLoginSuccess }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full pl-4 pr-10 py-2 bg-[#E2E8F0]/70 border border-gray-300 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
+                className="w-full pl-4 pr-10 py-2 bg-[#E2E8F0]/70 border border-gray-300 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#A78BFA]"
               />
               <button
                 type="button"
@@ -104,44 +118,31 @@ export default function Login({ onLoginSuccess }) {
 
           {isRegistering && (
             <div className="space-y-1">
-              <label className="block text-xs font-semibold text-gray-700">
-                Confirmar Contraseña
-              </label>
+              <label className="block text-xs font-semibold text-gray-700">Confirmar Contraseña</label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full px-4 py-2 bg-[#E2E8F0]/70 border border-gray-300 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#A78BFA] transition-all"
+                className="w-full px-4 py-2 bg-[#E2E8F0]/70 border border-gray-300 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#A78BFA]"
               />
-            </div>
-          )}
-
-          {!isRegistering && (
-            <div className="flex items-center justify-between text-xs pt-1">
-              <label className="flex items-center gap-1.5 cursor-pointer text-[#60A5FA]">
-                <input
-                  type="checkbox"
-                  className="rounded border-gray-300 text-[#A78BFA] focus:ring-[#A78BFA]"
-                />
-                <span>Mostrar contraseña</span>
-              </label>
-              <a
-                href="#forgot"
-                onClick={(e) => e.preventDefault()}
-                className="text-[#60A5FA] hover:underline"
-              >
-                ¿Olvidaste la contraseña?
-              </a>
             </div>
           )}
 
           <button
             type="submit"
-            className="w-full mt-4 bg-[#B896FF] hover:bg-[#A78BFA] text-white font-medium py-2.5 px-4 rounded-xl border border-purple-400 shadow-md transition-all duration-200 cursor-pointer text-sm"
+            disabled={loading}
+            className="w-full mt-4 bg-[#B896FF] hover:bg-[#A78BFA] text-white font-medium py-2.5 px-4 rounded-xl border border-purple-400 shadow-md transition-all duration-200 cursor-pointer text-sm flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            {isRegistering ? 'Registrarse' : 'Iniciar Sesion'}
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Cargando...</span>
+              </>
+            ) : (
+              <span>{isRegistering ? 'Registrarse' : 'Iniciar Sesión'}</span>
+            )}
           </button>
         </form>
 
@@ -151,7 +152,7 @@ export default function Login({ onLoginSuccess }) {
               ¿Ya tienes una cuenta?{' '}
               <button
                 type="button"
-                onClick={() => setIsRegistering(false)}
+                onClick={() => { setIsRegistering(false); setErrorMessage(''); }}
                 className="text-[#60A5FA] font-semibold hover:underline cursor-pointer bg-transparent border-0"
               >
                 Inicia sesión aquí
@@ -162,7 +163,7 @@ export default function Login({ onLoginSuccess }) {
               ¿No tienes una cuenta?{' '}
               <button
                 type="button"
-                onClick={() => setIsRegistering(true)}
+                onClick={() => { setIsRegistering(true); setErrorMessage(''); }}
                 className="text-[#60A5FA] font-semibold hover:underline cursor-pointer bg-transparent border-0"
               >
                 Regístrate aquí
@@ -170,7 +171,6 @@ export default function Login({ onLoginSuccess }) {
             </p>
           )}
         </div>
-
       </div>
     </div>
   );
