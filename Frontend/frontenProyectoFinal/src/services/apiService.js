@@ -24,13 +24,16 @@ async function request(method, path, body) {
   }
 
   const response = await fetch(url, options);
-  const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || `Error ${response.status}`);
+    const text = await response.text().catch(() => null);
+    let message;
+    try { message = JSON.parse(text).message; } catch { message = text || `Error ${response.status}`; }
+    throw new Error(message);
   }
 
-  return data;
+  const text = await response.text();
+  return text ? JSON.parse(text) : null;
 }
 
 export const api = {

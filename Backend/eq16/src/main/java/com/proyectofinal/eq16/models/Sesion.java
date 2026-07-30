@@ -10,7 +10,7 @@ public class Sesion {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_sesion")
+    @Column(name = "sesion_id")
     private Long sesion_id;
 
     @Column(name = "fecha_inicio")
@@ -26,7 +26,7 @@ public class Sesion {
     private String estado;
 
     @ManyToOne
-    @JoinColumn(name = "id_usuario")
+    @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
     public Sesion() {

@@ -28,6 +28,21 @@ public class TareaService {
     }
 
     @Transactional(readOnly = true)
+    public List<Tarea> listarPorUsuario(Long usuarioId){
+        return tareaRepository.findByUsuarioId(usuarioId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Tarea> listarPrioritariasPorUsuario(Long usuarioId){
+        return tareaRepository.findByUsuarioIdAndEstadoNot(usuarioId, "COMPLETADA");
+    }
+
+    @Transactional(readOnly = true)
+    public long contarCompletadasPorUsuario(Long usuarioId){
+        return tareaRepository.countByUsuarioIdAndEstado(usuarioId, "COMPLETADA");
+    }
+
+    @Transactional(readOnly = true)
     public Tarea obtener(Long id){
         return tareaRepository.findById(id)
                 .orElseThrow(() -> new ResourceException("La tarea con id '" + id + "' no existe"));
@@ -50,19 +65,33 @@ public class TareaService {
     }
 
     @Transactional
+    public Tarea crearParaUsuario(TareaRequest request, Usuario usuario){
+        Tarea tarea = new Tarea();
+        tarea.setTitulo(request.getTitulo());
+        tarea.setDescripcion(request.getDescripcion());
+        tarea.setFecha_limite(request.getFecha_limite());
+        tarea.setPrioridad(request.getPrioridad() != null ? request.getPrioridad() : "MEDIA");
+        tarea.setEstado(request.getEstado() != null ? request.getEstado() : "PENDIENTE");
+        tarea.setUsuario(usuario);
+
+        return tareaRepository.save(tarea);
+    }
+
+    @Transactional
     public Tarea actualizar(Long id, TareaRequest request){
         Tarea tarea = tareaRepository.findById(id)
                 .orElseThrow(() -> new ResourceException("La tarea con id '" + id + "' no existe"));
 
-        Usuario usuario = usuarioRepository.findById(request.getId_usuario())
-                .orElseThrow(() -> new ResourceException("El usuario con id '" + request.getId_usuario() + "' no existe"));
-
-        tarea.setTitulo(request.getTitulo());
-        tarea.setDescripcion(request.getDescripcion());
-        tarea.setFecha_limite(request.getFecha_limite());
-        tarea.setPrioridad(request.getPrioridad());
-        tarea.setEstado(request.getEstado());
-        tarea.setUsuario(usuario);
+        if (request.getTitulo() != null) tarea.setTitulo(request.getTitulo());
+        if (request.getDescripcion() != null) tarea.setDescripcion(request.getDescripcion());
+        if (request.getFecha_limite() != null) tarea.setFecha_limite(request.getFecha_limite());
+        if (request.getPrioridad() != null) tarea.setPrioridad(request.getPrioridad());
+        if (request.getEstado() != null) tarea.setEstado(request.getEstado());
+        if (request.getId_usuario() != null) {
+            Usuario usuario = usuarioRepository.findById(request.getId_usuario())
+                    .orElseThrow(() -> new ResourceException("El usuario con id '" + request.getId_usuario() + "' no existe"));
+            tarea.setUsuario(usuario);
+        }
 
         return tareaRepository.save(tarea);
     }

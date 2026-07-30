@@ -6,7 +6,7 @@ import {
   BarChart3,
   Settings,
 } from "lucide-react";
-import logoImg from "../assets/Logo_Proyecto.png"; // <-- 1. Importas la imagen desde assets
+import logoImg from "../assets/Logo_Proyecto.png";
 
 const NAV_ITEMS = [
   { key: "dashboard", label: "Dashboard", icon: LayoutGrid },
@@ -20,7 +20,6 @@ export default function Sidebar({ activeTab, setActiveTab }) {
   return (
     <aside className="w-60 shrink-0 bg-slate-900 text-slate-200 flex flex-col h-screen sticky top-0">
       <div className="flex items-center gap-2 px-6 py-6">
-        {/* 2. Usas la variable en el src */}
         <img
           src={logoImg}
           alt="Logo Synapse"
@@ -53,7 +52,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
       </nav>
 
       <div className="px-6 py-4 text-xs text-slate-500">
-        Synapse v1.0 — Mock UI
+        Synapse v1.0
       </div>
     </aside>
   );

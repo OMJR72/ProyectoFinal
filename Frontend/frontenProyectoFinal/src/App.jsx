@@ -118,7 +118,7 @@ export default function App() {
         <main className="p-6">
 
           {activeTab === "dashboard" && (
-            <Dashboard />
+            <Dashboard onTabChange={handleTabChange} />
           )}
 
           {activeTab === "tareas" && (

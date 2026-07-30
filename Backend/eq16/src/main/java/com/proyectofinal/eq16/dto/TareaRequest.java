@@ -1,7 +1,6 @@
 package com.proyectofinal.eq16.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 public class TareaRequest {
@@ -17,7 +16,6 @@ public class TareaRequest {
 
     private String estado;
 
-    @NotNull(message = "El id del usuario es obligatorio")
     private Long id_usuario;
 
     public String getTitulo() {

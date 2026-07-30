@@ -74,20 +74,17 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // Login y registro públicos
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/auth/login",
                                 "/api/auth/register/**"
                         ).permitAll()
 
-                        // Peticiones OPTIONS de CORS
                         .requestMatchers(
                                 HttpMethod.OPTIONS,
                                 "/**"
                         ).permitAll()
 
-                        // Todo lo demás requiere JWT
                         .anyRequest().authenticated()
                 )
 

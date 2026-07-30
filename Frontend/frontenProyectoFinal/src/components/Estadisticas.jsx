@@ -1,78 +1,51 @@
-import React from "react";
-import { ChevronDown } from "lucide-react";
-import {
-  kpisEstadisticas,
-  productividadSemanal,
-  distribucionCategoria,
-  distribucionProyecto,
-} from "../mockData";
+import React, { useEffect, useState } from "react";
+import { ChevronDown, Loader2 } from "lucide-react";
+import { estadisticaService } from "../services/estadisticaService";
 
 const COLORES_DONA = ["#3B82F6", "#64748B", "#94A3B8", "#CBD5E1"];
 
-function GraficaBarras() {
+function GraficaBarras({ data }) {
+  if (!data || data.length === 0) return <p className="text-sm text-slate-400 text-center py-8">Sin datos</p>;
   const width = 480;
   const height = 200;
   const padding = 28;
-  const max = 50;
-  const barWidth = (width - padding * 2) / productividadSemanal.length;
+  const max = Math.max(...data.map((d) => d.horas), 1);
+  const barWidth = (width - padding * 2) / data.length;
 
   return (
     <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-48">
-      {[0, 12.5, 25, 37.5, 50].map((v) => {
-        const y = height - padding - (v / max) * (height - padding * 2);
+      {[0, 0.25, 0.5, 0.75, 1].map((v) => {
+        const y = height - padding - (v * max / max) * (height - padding * 2);
         return (
-          <line
-            key={v}
-            x1={padding}
-            x2={width - padding}
-            y1={y}
-            y2={y}
-            stroke="#E2E8F0"
-            strokeWidth={1}
-          />
+          <line key={v} x1={padding} x2={width - padding} y1={y} y2={y} stroke="#E2E8F0" strokeWidth={1} />
         );
       })}
-      {productividadSemanal.map((item, i) => {
+      {data.map((item, i) => {
         const barHeight = (item.horas / max) * (height - padding * 2);
         const x = padding + barWidth * i + barWidth * 0.2;
         const y = height - padding - barHeight;
         return (
-          <rect
-            key={item.dia}
-            x={x}
-            y={y}
-            width={barWidth * 0.6}
-            height={barHeight}
-            rx={4}
-            className="fill-slate-400"
-          />
+          <rect key={item.dia} x={x} y={y} width={barWidth * 0.6} height={barHeight} rx={4} className="fill-slate-400" />
         );
       })}
-      {productividadSemanal.map((item, i) => (
-        <text
-          key={item.dia}
-          x={padding + barWidth * i + barWidth / 2}
-          y={height - 6}
-          textAnchor="middle"
-          className="fill-slate-500 text-[10px]"
-        >
-          {item.dia}
-        </text>
+      {data.map((item, i) => (
+        <text key={item.dia} x={padding + barWidth * i + barWidth / 2} y={height - 6} textAnchor="middle" className="fill-slate-500 text-[10px]">{item.dia}</text>
       ))}
     </svg>
   );
 }
 
-function GraficaDona() {
+function GraficaDona({ data }) {
+  if (!data || data.length === 0) return <p className="text-sm text-slate-400 text-center py-8">Sin datos</p>;
   const size = 160;
   const radius = size / 2;
   const grosor = 28;
   let acumulado = 0;
 
-  const segmentos = distribucionCategoria.map((item, i) => {
+  const segmentos = data.map((item, i) => {
     const inicio = acumulado;
     acumulado += item.porcentaje;
-    return { ...item, inicio, fin: acumulado, color: COLORES_DONA[i] };
+    return { ...item, inicio, fin: acumulado, color: COLORES_DONA[i] ?? "#CBD5E1" };
   });
 
   function coordenadas(porcentaje) {
@@ -87,11 +60,7 @@ function GraficaDona() {
         const [x2, y2] = coordenadas(seg.fin);
         const grandeArco = seg.fin - seg.inicio > 50 ? 1 : 0;
         return (
-          <path
-            key={seg.categoria}
-            d={`M ${radius} ${radius} L ${x1} ${y1} A ${radius} ${radius} 0 ${grandeArco} 1 ${x2} ${y2} Z`}
-            fill={seg.color}
-          />
+          <path key={seg.categoria} d={`M ${radius} ${radius} L ${x1} ${y1} A ${radius} ${radius} 0 ${grandeArco} 1 ${x2} ${y2} Z`} fill={seg.color} />
         );
       })}
       <circle cx={radius} cy={radius} r={radius - grosor} fill="#FFFFFF" />
@@ -100,60 +69,78 @@ function GraficaDona() {
 }
 
 export default function Estadisticas() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    cargarEstadisticas();
+  }, []);
+
+  const cargarEstadisticas = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await estadisticaService.resumen();
+      setData(res);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-20 text-red-500 text-sm">{error}</div>
+    );
+  }
+
+  if (!data) return null;
+
   return (
     <div className="space-y-6">
-      {/* Encabezado */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">
-            Estadísticas de Rendimiento
-          </h2>
-          <p className="text-sm text-slate-500">
-            Resumen de hábitos de estudio, tiempo enfocado y tareas completadas.
-          </p>
+          <h2 className="text-xl font-bold text-slate-900">Estadísticas de Rendimiento</h2>
+          <p className="text-sm text-slate-500">Resumen de hábitos de estudio, tiempo enfocado y tareas completadas.</p>
         </div>
         <button className="flex items-center gap-1 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 px-3 py-2">
           Esta semana <ChevronDown className="w-4 h-4" />
         </button>
       </div>
 
-      {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpisEstadisticas.map((kpi) => (
-          <div
-            key={kpi.id}
-            className="bg-white rounded-xl border border-slate-200 p-5"
-          >
+        {(data.kpis ?? []).map((kpi) => (
+          <div key={kpi.id} className="bg-white rounded-xl border border-slate-200 p-5">
             <p className="text-sm text-slate-500">{kpi.etiqueta}</p>
-            <p className="mt-1 text-2xl font-bold text-slate-900">
-              {kpi.valor}
-            </p>
+            <p className="mt-1 text-2xl font-bold text-slate-900">{kpi.valor}</p>
           </div>
         ))}
       </div>
 
-      {/* Gráficas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl border border-slate-200 p-6">
-          <h3 className="text-base font-semibold text-slate-900 mb-2">
-            Rendimiento Semanal
-          </h3>
-          <GraficaBarras />
+          <h3 className="text-base font-semibold text-slate-900 mb-2">Rendimiento Semanal</h3>
+          <GraficaBarras data={data.productividadSemanal} />
         </div>
 
         <div className="bg-white rounded-xl border border-slate-200 p-6">
-          <h3 className="text-base font-semibold text-slate-900 mb-4">
-            Distribución por Categoría
-          </h3>
+          <h3 className="text-base font-semibold text-slate-900 mb-4">Distribución por Categoría</h3>
           <div className="flex items-center gap-6">
-            <GraficaDona />
+            <GraficaDona data={data.distribucionCategoria} />
             <ul className="space-y-2 text-sm">
-              {distribucionCategoria.map((item, i) => (
+              {(data.distribucionCategoria ?? []).map((item, i) => (
                 <li key={item.categoria} className="flex items-center gap-2">
-                  <span
-                    className="w-2.5 h-2.5 rounded-full"
-                    style={{ backgroundColor: COLORES_DONA[i] }}
-                  />
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORES_DONA[i] ?? "#CBD5E1" }} />
                   <span className="text-slate-700">{item.categoria}</span>
                   <span className="text-slate-400">{item.porcentaje}%</span>
                 </li>
@@ -164,9 +151,7 @@ export default function Estadisticas() {
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <h3 className="text-base font-semibold text-slate-900 mb-4">
-          Distribución por Materia/Proyecto
-        </h3>
+        <h3 className="text-base font-semibold text-slate-900 mb-4">Distribución por Materia/Proyecto</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -178,7 +163,7 @@ export default function Estadisticas() {
               </tr>
             </thead>
             <tbody>
-              {distribucionProyecto.map((item) => (
+              {(data.distribucionProyecto ?? []).map((item) => (
                 <tr key={item.proyecto} className="border-b border-slate-100">
                   <td className="py-3 text-slate-800">{item.proyecto}</td>
                   <td className="py-3 text-slate-600">{item.horas}</td>

@@ -28,6 +28,11 @@ public class ActividadService {
     }
 
     @Transactional(readOnly = true)
+    public List<Actividad> listarPorUsuario(Long usuarioId){
+        return actividadRepository.findByUsuarioId(usuarioId);
+    }
+
+    @Transactional(readOnly = true)
     public Actividad obtener(Long id){
         return actividadRepository.findById(id)
                 .orElseThrow(() -> new ResourceException("La actividad con id '" + id + "' no existe"));

@@ -2,6 +2,8 @@ package com.proyectofinal.eq16.controller;
 
 import com.proyectofinal.eq16.dto.SesionRequest;
 import com.proyectofinal.eq16.models.Sesion;
+import com.proyectofinal.eq16.models.Usuario;
+import com.proyectofinal.eq16.security.UsuarioContext;
 import com.proyectofinal.eq16.service.SesionService;
 import jakarta.validation.Valid;
 
@@ -16,14 +18,17 @@ import java.util.List;
 public class SesionController {
 
     private final SesionService sesionService;
+    private final UsuarioContext usuarioContext;
 
-    public SesionController(SesionService sesionService) {
+    public SesionController(SesionService sesionService, UsuarioContext usuarioContext) {
         this.sesionService = sesionService;
+        this.usuarioContext = usuarioContext;
     }
 
     @GetMapping
     public ResponseEntity<List<Sesion>> listar() {
-        return ResponseEntity.ok(sesionService.listar());
+        Usuario usuario = usuarioContext.getCurrentUser();
+        return ResponseEntity.ok(sesionService.listarPorUsuario(usuario.getId()));
     }
 
     @GetMapping("/{id}")
@@ -33,12 +38,13 @@ public class SesionController {
 
     @PostMapping
     public ResponseEntity<Sesion> crear(@Valid @RequestBody SesionRequest request) {
-        Sesion sesion = sesionService.crear(request);
+        Usuario usuario = usuarioContext.getCurrentUser();
+        Sesion sesion = sesionService.crearParaUsuario(request, usuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(sesion);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Sesion> actualizar(@PathVariable Long id, @Valid @RequestBody SesionRequest request) {
+    public ResponseEntity<Sesion> actualizar(@PathVariable Long id, @RequestBody SesionRequest request) {
         Sesion sesion = sesionService.actualizar(id, request);
         return ResponseEntity.ok(sesion);
     }

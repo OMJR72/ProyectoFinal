@@ -17,7 +17,7 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_usuario")
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "nombre", nullable = false)
@@ -36,7 +36,7 @@ public class Usuario {
     private String telefono;
 
     @ManyToOne
-    @JoinColumn(name = "id_rol", nullable = false)
+    @JoinColumn(name = "rol_id", nullable = false)
     private Rol rol;
 
     @Column(name = "fecha_registro")

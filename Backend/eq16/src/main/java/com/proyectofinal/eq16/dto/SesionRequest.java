@@ -15,7 +15,6 @@ public class SesionRequest {
 
     private String estado;
 
-    @NotNull(message = "El id del usuario es obligatorio")
     private Long id_usuario;
 
     public LocalDateTime getFecha_inicio() {

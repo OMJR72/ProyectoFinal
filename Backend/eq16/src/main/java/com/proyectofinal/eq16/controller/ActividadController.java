@@ -2,6 +2,8 @@ package com.proyectofinal.eq16.controller;
 
 import com.proyectofinal.eq16.dto.ActividadRequest;
 import com.proyectofinal.eq16.models.Actividad;
+import com.proyectofinal.eq16.models.Usuario;
+import com.proyectofinal.eq16.security.UsuarioContext;
 import com.proyectofinal.eq16.service.ActividadService;
 import jakarta.validation.Valid;
 
@@ -16,14 +18,17 @@ import java.util.List;
 public class ActividadController {
 
     private final ActividadService actividadService;
+    private final UsuarioContext usuarioContext;
 
-    public ActividadController(ActividadService actividadService) {
+    public ActividadController(ActividadService actividadService, UsuarioContext usuarioContext) {
         this.actividadService = actividadService;
+        this.usuarioContext = usuarioContext;
     }
 
     @GetMapping
     public ResponseEntity<List<Actividad>> listar() {
-        return ResponseEntity.ok(actividadService.listar());
+        Usuario usuario = usuarioContext.getCurrentUser();
+        return ResponseEntity.ok(actividadService.listarPorUsuario(usuario.getId()));
     }
 
     @GetMapping("/{id}")

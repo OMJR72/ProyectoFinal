@@ -1,5 +1,6 @@
 package com.proyectofinal.eq16.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -28,6 +29,28 @@ public class SesionService {
     }
 
     @Transactional(readOnly = true)
+    public List<Sesion> listarPorUsuario(Long usuarioId){
+        return sesionRepository.findByUsuarioId(usuarioId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Sesion> listarPorUsuarioYFecha(Long usuarioId, LocalDateTime start, LocalDateTime end){
+        return sesionRepository.findByUsuarioIdAndFechaInicioBetween(usuarioId, start, end);
+    }
+
+    @Transactional(readOnly = true)
+    public long contarSesionesPorUsuario(Long usuarioId){
+        return sesionRepository.countByUsuarioId(usuarioId);
+    }
+
+    @Transactional(readOnly = true)
+    public Long sumarDuracionMinutosPorUsuario(Long usuarioId){
+        return listarPorUsuario(usuarioId).stream()
+                .mapToLong(s -> s.getDuracion_minutos() != null ? s.getDuracion_minutos() : 0L)
+                .sum();
+    }
+
+    @Transactional(readOnly = true)
     public Sesion obtener(Long id){
         return sesionRepository.findById(id)
                 .orElseThrow(() -> new ResourceException("La sesion con id '" + id + "' no existe"));
@@ -49,18 +72,31 @@ public class SesionService {
     }
 
     @Transactional
+    public Sesion crearParaUsuario(SesionRequest request, Usuario usuario){
+        Sesion sesion = new Sesion();
+        sesion.setFecha_inicio(request.getFecha_inicio());
+        sesion.setFecha_fin(request.getFecha_fin());
+        sesion.setDuracion_minutos(request.getDuracion_minutos());
+        sesion.setEstado(request.getEstado() != null ? request.getEstado() : "EN_PROGRESO");
+        sesion.setUsuario(usuario);
+
+        return sesionRepository.save(sesion);
+    }
+
+    @Transactional
     public Sesion actualizar(Long id, SesionRequest request){
         Sesion sesion = sesionRepository.findById(id)
                 .orElseThrow(() -> new ResourceException("La sesion con id '" + id + "' no existe"));
 
-        Usuario usuario = usuarioRepository.findById(request.getId_usuario())
-                .orElseThrow(() -> new ResourceException("El usuario con id '" + request.getId_usuario() + "' no existe"));
-
-        sesion.setFecha_inicio(request.getFecha_inicio());
-        sesion.setFecha_fin(request.getFecha_fin());
-        sesion.setDuracion_minutos(request.getDuracion_minutos());
-        sesion.setEstado(request.getEstado());
-        sesion.setUsuario(usuario);
+        if (request.getFecha_inicio() != null) sesion.setFecha_inicio(request.getFecha_inicio());
+        if (request.getFecha_fin() != null) sesion.setFecha_fin(request.getFecha_fin());
+        if (request.getDuracion_minutos() != null) sesion.setDuracion_minutos(request.getDuracion_minutos());
+        if (request.getEstado() != null) sesion.setEstado(request.getEstado());
+        if (request.getId_usuario() != null) {
+            Usuario usuario = usuarioRepository.findById(request.getId_usuario())
+                    .orElseThrow(() -> new ResourceException("El usuario con id '" + request.getId_usuario() + "' no existe"));
+            sesion.setUsuario(usuario);
+        }
 
         return sesionRepository.save(sesion);
     }
