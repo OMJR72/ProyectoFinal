@@ -53,7 +53,7 @@ export const registerUser = async (
 ) => {
   try {
     const response = await fetch(
-      `${BASE_URL}/register`,
+      `${BASE_URL}/register/user`,
       {
         method: 'POST',
         headers: {

@@ -1,6 +1,7 @@
 package com.proyectofinal.eq16.models;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,44 +13,37 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table (name = "tareas")
+@Table(name = "tareas")
 public class Tarea {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_tarea")
     private Long id_tarea;
 
-    @Column(name = "Titulo")
+    @Column(name = "titulo")
     private String titulo;
 
     @Column(name = "descripcion")
     private String descripcion;
 
-    @Column(name = "fecha_Creacion")
-    private LocalDate fecha;
-    
+    @Column(name = "fecha_creacion", insertable = false, updatable = false)
+    private LocalDateTime fecha_creacion;
+
     @Column(name = "fecha_limite")
     private LocalDate fecha_limite;
 
+    @Column(name = "prioridad")
+    private String prioridad;
+
     @Column(name = "estado")
-    private Boolean estado;
+    private String estado;
 
     @ManyToOne
     @JoinColumn(name = "id_usuario")
-    private Usuario Usuario;
+    private Usuario usuario;
 
     public Tarea() {
-    }
-
-    public Tarea(Long id_tarea, String titulo, String descripcion, LocalDate fecha, LocalDate fecha_limite, Boolean estado, Usuario Usuario) {
-        this.id_tarea = id_tarea;
-        this.titulo = titulo;
-        this.descripcion = descripcion;
-        this.fecha = fecha;
-        this.fecha_limite = fecha_limite;
-        this.estado = estado;
-        this.Usuario = Usuario;
     }
 
     public Long getId_tarea() {
@@ -76,12 +70,12 @@ public class Tarea {
         this.descripcion = descripcion;
     }
 
-    public LocalDate getFecha() {
-        return fecha;
+    public LocalDateTime getFecha_creacion() {
+        return fecha_creacion;
     }
 
-    public void setFecha(LocalDate fecha) {
-        this.fecha = fecha;
+    public void setFecha_creacion(LocalDateTime fecha_creacion) {
+        this.fecha_creacion = fecha_creacion;
     }
 
     public LocalDate getFecha_limite() {
@@ -92,21 +86,27 @@ public class Tarea {
         this.fecha_limite = fecha_limite;
     }
 
-    public Boolean getEstado() {
+    public String getPrioridad() {
+        return prioridad;
+    }
+
+    public void setPrioridad(String prioridad) {
+        this.prioridad = prioridad;
+    }
+
+    public String getEstado() {
         return estado;
     }
 
-    public void setEstado(Boolean estado) {
+    public void setEstado(String estado) {
         this.estado = estado;
     }
 
     public Usuario getUsuario() {
-        return Usuario;
+        return usuario;
     }
 
     public void setUsuario(Usuario usuario) {
-        Usuario = usuario;
+        this.usuario = usuario;
     }
-
-    
 }

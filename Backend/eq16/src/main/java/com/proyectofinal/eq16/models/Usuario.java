@@ -1,42 +1,62 @@
 package com.proyectofinal.eq16.models;
 
-import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "usuarios")
-public class Usuario{
-    
+public class Usuario {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "nombre", nullable = false)
     private String nombre;
 
-    @Column(nullable = false)
+    @Column(name = "apellido", nullable = false)
     private String apellido;
 
-    @Column(nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
+
+    @Column(name = "telefono")
+    private String telefono;
 
     @ManyToOne
     @JoinColumn(name = "rol_id", nullable = false)
     private Rol rol;
 
-    @Column(nullable = false)
-    private LocalDate fecha_registro;
+    @Column(name = "fecha_registro", insertable = false, updatable = false)
+    private LocalDateTime fecha_registro;
 
-    @Column(nullable = false)
+    @Column(name = "puntos", nullable = false)
     private Long puntos;
 
     public Usuario() {
     }
 
-    public Usuario(String nombre, String apellido, String email, String password, Rol rol, LocalDate fecha_registro, Long puntos){
+    public Usuario(
+            String nombre,
+            String apellido,
+            String email,
+            String password,
+            Rol rol,
+            LocalDateTime fecha_registro,
+            Long puntos
+    ) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
@@ -86,6 +106,14 @@ public class Usuario{
         this.password = password;
     }
 
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
     public Rol getRol() {
         return rol;
     }
@@ -94,11 +122,11 @@ public class Usuario{
         this.rol = rol;
     }
 
-    public LocalDate getFecha_registro() {
+    public LocalDateTime getFecha_registro() {
         return fecha_registro;
     }
 
-    public void setFecha_registro(LocalDate fecha_registro) {
+    public void setFecha_registro(LocalDateTime fecha_registro) {
         this.fecha_registro = fecha_registro;
     }
 
@@ -108,5 +136,5 @@ public class Usuario{
 
     public void setPuntos(Long puntos) {
         this.puntos = puntos;
-    }   
+    }
 }

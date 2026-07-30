@@ -10,7 +10,7 @@ public class Sesion {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "sesion_id")
+    @Column(name = "id_sesion")
     private Long sesion_id;
 
     @Column(name = "fecha_inicio")
@@ -23,16 +23,16 @@ public class Sesion {
     private Long duracion_minutos;
 
     @Column (name = "estado")
-    private Boolean estado;
+    private String estado;
 
     @ManyToOne
-    @JoinColumn(name = "usuario_id")
+    @JoinColumn(name = "id_usuario")
     private Usuario usuario;
 
     public Sesion() {
     }
 
-    public Sesion(Long sesion_id, LocalDateTime fecha_inicio, LocalDateTime fecha_fin, Long duracion_minutos, Boolean estado, Usuario usuario) {
+    public Sesion(Long sesion_id, LocalDateTime fecha_inicio, LocalDateTime fecha_fin, Long duracion_minutos, String estado, Usuario usuario) {
         this.sesion_id = sesion_id;
         this.fecha_inicio = fecha_inicio;
         this.fecha_fin = fecha_fin;
@@ -73,11 +73,11 @@ public class Sesion {
         this.duracion_minutos = duracion_minutos;
     }
 
-    public Boolean getEstado() {
+    public String getEstado() {
         return estado;
     }
 
-    public void setEstado(Boolean estado) {
+    public void setEstado(String estado) {
         this.estado = estado;
     }
 

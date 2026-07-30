@@ -1,10 +1,18 @@
 package com.proyectofinal.eq16.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 public class RegisterRequest {
 
     private String nombre;
     private String apellido;
+
+    @NotBlank(message = "El email es obligatorio")
+    @Email(message = "Debe ser un correo válido")
     private String email;
+
+    @NotBlank(message = "La contraseña es obligatoria")
     private String password;
 
     public RegisterRequest() {

@@ -8,12 +8,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "rol")
+@Table(name = "roles")
 public class Rol {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "rol_id")
+    @Column(name = "id_rol")
     private Long rol_id;
 
     @Column(name = "nombre", nullable = false, unique = true)
