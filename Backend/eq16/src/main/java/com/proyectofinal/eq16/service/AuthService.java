@@ -16,6 +16,10 @@ import com.proyectofinal.eq16.repository.RolRepository;
 import com.proyectofinal.eq16.repository.UsuarioRepository;
 import com.proyectofinal.eq16.security.JwtService;
 
+import java.time.LocalDateTime;
+
+import org.springframework.http.HttpStatus;
+
 @Service
 public class AuthService {
 
@@ -43,7 +47,8 @@ public class AuthService {
 
         if (usuarioRepository.existsByEmail(request.getEmail())) {
             throw new ResourceException(
-                    "El email '" + request.getEmail() + "' ya está registrado"
+                    "El email '" + request.getEmail() + "' ya está registrado",
+                    HttpStatus.CONFLICT
             );
         }
 
@@ -66,6 +71,7 @@ public class AuthService {
                         )
         );
 
+        usuario.setFecha_registro(LocalDateTime.now());
         usuario.setPuntos(0L);
 
         usuarioRepository.save(usuario);
@@ -78,7 +84,7 @@ public class AuthService {
 
         String token = jwtService.generateToken(userDetails);
 
-        return new AuthResponse(token, usuario.getEmail());
+        return new AuthResponse(token, usuario.getEmail(), usuario.getId(), usuario.getNombre(), usuario.getApellido(), usuario.getRol().getNombre());
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -103,6 +109,6 @@ public class AuthService {
 
         String token = jwtService.generateToken(userDetails);
 
-        return new AuthResponse(token, usuario.getEmail());
+        return new AuthResponse(token, usuario.getEmail(), usuario.getId(), usuario.getNombre(), usuario.getApellido(), usuario.getRol().getNombre());
     }
 }

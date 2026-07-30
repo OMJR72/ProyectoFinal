@@ -61,7 +61,11 @@ export default function Login({ onLoginSuccess }) {
 
         if (onLoginSuccess) {
           onLoginSuccess({
-            email: email
+            id: response.id,
+            email: response.email,
+            nombre: response.nombre,
+            apellido: response.apellido,
+            rol: response.rol,
           });
         }
       }

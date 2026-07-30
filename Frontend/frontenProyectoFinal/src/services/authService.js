@@ -25,21 +25,20 @@ export const loginUser = async (email, password) => {
     }
 
     if (data.token) {
-      sessionStorage.setItem(
-        'token',
-        data.token
-      );
-
+      sessionStorage.setItem('token', data.token);
       sessionStorage.setItem(
         'user',
         JSON.stringify({
-          email,
+          id: data.id,
+          email: data.email,
+          nombre: data.nombre,
+          apellido: data.apellido,
+          rol: data.rol,
         })
       );
     }
 
     return data;
-
   } catch (error) {
     throw error;
   }
@@ -72,13 +71,11 @@ export const registerUser = async (
 
     if (!response.ok) {
       throw new Error(
-        data.message ||
-        'Error al registrar el usuario'
+        data.message || 'Error al registrar el usuario'
       );
     }
 
     return data;
-
   } catch (error) {
     throw error;
   }

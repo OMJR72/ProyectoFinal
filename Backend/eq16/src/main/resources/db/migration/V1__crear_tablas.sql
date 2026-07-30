@@ -10,8 +10,9 @@ CREATE TABLE usuarios (
     apellido VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
+    telefono VARCHAR(20),
     rol_id BIGINT NOT NULL,
-    fecha_registro DATE NOT NULL,
+    fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
     puntos BIGINT NOT NULL DEFAULT 0,
 
     CONSTRAINT fk_usuario_rol
@@ -23,9 +24,10 @@ CREATE TABLE tareas (
     id_tarea BIGINT AUTO_INCREMENT PRIMARY KEY,
     titulo VARCHAR(255),
     descripcion TEXT,
-    fecha_Creacion DATE,
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
     fecha_limite DATE,
-    estado BOOLEAN,
+    prioridad VARCHAR(20) DEFAULT 'MEDIA',
+    estado VARCHAR(20) DEFAULT 'PENDIENTE',
     id_usuario BIGINT,
 
     CONSTRAINT fk_tarea_usuario
@@ -38,10 +40,23 @@ CREATE TABLE sesiones (
     fecha_inicio DATETIME,
     fecha_fin DATETIME,
     duracion_minutos BIGINT,
-    estado BOOLEAN,
-    usuario_id BIGINT,
+    estado VARCHAR(20) DEFAULT 'EN_PROGRESO',
+    id_usuario BIGINT,
 
     CONSTRAINT fk_sesion_usuario
-        FOREIGN KEY (usuario_id)
+        FOREIGN KEY (id_usuario)
         REFERENCES usuarios(id)
+);
+
+CREATE TABLE actividades (
+    id_actividad BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    descripcion TEXT,
+    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+    tipo VARCHAR(20) DEFAULT 'OTRA',
+    id_sesion BIGINT NOT NULL,
+
+    CONSTRAINT fk_actividad_sesion
+        FOREIGN KEY (id_sesion)
+        REFERENCES sesiones(sesion_id)
 );

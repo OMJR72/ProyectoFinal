@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Bell, ChevronDown, LogOut, User } from "lucide-react";
-import { usuario } from "../mockData";
 
 const TITULOS = {
   dashboard: "Dashboard",
@@ -10,8 +9,16 @@ const TITULOS = {
   configuracion: "Configuración",
 };
 
-export default function Navbar({ activeTab, onLogout }) {
+export default function Navbar({ activeTab, user, onLogout }) {
   const [menuAbierto, setMenuAbierto] = useState(false);
+
+  const nombreCompleto = user
+    ? `${user.nombre} ${user.apellido}`
+    : "Usuario";
+
+  const iniciales = user
+    ? `${user.nombre?.charAt(0) ?? ""}${user.apellido?.charAt(0) ?? ""}`
+    : "U";
 
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between bg-slate-900 px-8 py-4">
@@ -40,26 +47,22 @@ export default function Navbar({ activeTab, onLogout }) {
             className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-800 transition-colors"
           >
 
-            <img
-              src={usuario.avatar}
-              alt={usuario.nombreCompleto}
-              className="w-9 h-9 rounded-full object-cover"
-            />
+            <div className="w-9 h-9 rounded-full bg-purple-500 flex items-center justify-center text-white text-sm font-medium">
+              {iniciales}
+            </div>
 
             <div className="text-left hidden sm:block">
               <p className="text-sm font-medium text-slate-100">
-                {usuario.nombreCompleto}
+                {nombreCompleto}
               </p>
 
               <p className="text-xs text-slate-400">
-                {usuario.titulo}
+                {user?.rol ?? "Usuario"}
               </p>
             </div>
 
             <ChevronDown
-              className={`w-4 h-4 text-slate-400 transition-transform ${
-                menuAbierto ? "rotate-180" : ""
-              }`}
+              className={`w-4 h-4 text-slate-400 transition-transform ${menuAbierto ? "rotate-180" : ""}`}
             />
 
           </button>
@@ -71,20 +74,18 @@ export default function Navbar({ activeTab, onLogout }) {
 
                 <div className="flex items-center gap-3">
 
-                  <img
-                    src={usuario.avatar}
-                    alt={usuario.nombreCompleto}
-                    className="w-11 h-11 rounded-full object-cover"
-                  />
+                  <div className="w-11 h-11 rounded-full bg-purple-500 flex items-center justify-center text-white text-base font-medium">
+                    {iniciales}
+                  </div>
 
                   <div className="min-w-0">
 
                     <p className="text-sm font-semibold text-slate-900 truncate">
-                      {usuario.nombreCompleto}
+                      {nombreCompleto}
                     </p>
 
                     <p className="text-xs text-slate-500 truncate">
-                      {usuario.correo}
+                      {user?.email ?? ""}
                     </p>
 
                   </div>

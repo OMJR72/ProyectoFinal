@@ -111,6 +111,7 @@ export default function App() {
 
         <Navbar
           activeTab={activeTab}
+          user={user}
           onLogout={handleLogout}
         />
 
