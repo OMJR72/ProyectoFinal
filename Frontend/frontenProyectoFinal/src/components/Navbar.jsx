@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { Bell, ChevronDown, LogOut, User } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Bell, ChevronDown, LogOut, User, X, CheckCircle, Clock, Info } from "lucide-react";
+import { useNotifications } from "../context/NotificationContext";
 
 const TITULOS = {
   dashboard: "Dashboard",
@@ -9,8 +10,27 @@ const TITULOS = {
   configuracion: "Configuración",
 };
 
-export default function Navbar({ activeTab, user, onLogout }) {
+const ICONOS_TIPO = {
+  success: <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />,
+  pomodoro: <Clock className="w-4 h-4 text-blue-500 shrink-0" />,
+  info: <Info className="w-4 h-4 text-slate-500 shrink-0" />,
+};
+
+export default function Navbar({ activeTab, user, onLogout, onTabChange }) {
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [notifAbierto, setNotifAbierto] = useState(false);
+  const notifRef = useRef(null);
+  const { notifications, dismissNotification, clearAll } = useNotifications();
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setNotifAbierto(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const nombreCompleto = user
     ? `${user.nombre} ${user.apellido}`
@@ -29,15 +49,58 @@ export default function Navbar({ activeTab, user, onLogout }) {
 
       <div className="flex items-center gap-5">
 
-        <button
-          type="button"
-          aria-label="Notificaciones"
-          className="relative text-slate-300 hover:text-white transition-colors"
-        >
-          <Bell className="w-5 h-5" />
+        <div className="relative" ref={notifRef}>
+          <button
+            type="button"
+            aria-label="Notificaciones"
+            onClick={() => setNotifAbierto(!notifAbierto)}
+            className="relative text-slate-300 hover:text-white transition-colors"
+          >
+            <Bell className="w-5 h-5" />
+            {notifications.length > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                {notifications.length}
+              </span>
+            )}
+          </button>
 
-          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500" />
-        </button>
+          {notifAbierto && (
+            <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden">
+              <div className="p-3 border-b border-slate-100 flex items-center justify-between">
+                <span className="text-sm font-semibold text-slate-900">Notificaciones</span>
+                {notifications.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={clearAll}
+                    className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    Marcar todas como leídas
+                  </button>
+                )}
+              </div>
+              <div className="max-h-72 overflow-y-auto">
+                {notifications.length === 0 ? (
+                  <p className="text-sm text-slate-400 text-center py-8">Sin notificaciones</p>
+                ) : (
+                  notifications.map((n) => (
+                    <div key={n.id} className="flex items-start gap-3 px-3 py-3 border-b border-slate-50 hover:bg-slate-50 group">
+                      {ICONOS_TIPO[n.type] ?? ICONOS_TIPO.info}
+                      <p className="text-sm text-slate-700 flex-1">{n.message}</p>
+                      <button
+                        type="button"
+                        onClick={() => dismissNotification(n.id)}
+                        className="text-slate-300 hover:text-slate-500 shrink-0"
+                        title="Cerrar"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="relative">
 
@@ -99,7 +162,7 @@ export default function Navbar({ activeTab, user, onLogout }) {
                 <button
                   type="button"
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-                  onClick={() => setMenuAbierto(false)}
+                  onClick={() => { setMenuAbierto(false); onTabChange?.("configuracion"); }}
                 >
                   <User className="w-4 h-4" />
                   Mi perfil

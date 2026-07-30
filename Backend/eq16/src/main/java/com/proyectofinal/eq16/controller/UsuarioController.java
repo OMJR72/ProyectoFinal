@@ -4,6 +4,7 @@ import com.proyectofinal.eq16.models.Usuario;
 import com.proyectofinal.eq16.repository.UsuarioRepository;
 import com.proyectofinal.eq16.security.UsuarioContext;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -15,10 +16,13 @@ public class UsuarioController {
 
     private final UsuarioContext usuarioContext;
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioController(UsuarioContext usuarioContext, UsuarioRepository usuarioRepository) {
+    public UsuarioController(UsuarioContext usuarioContext, UsuarioRepository usuarioRepository,
+                             PasswordEncoder passwordEncoder) {
         this.usuarioContext = usuarioContext;
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/perfil")
@@ -53,5 +57,30 @@ public class UsuarioController {
         perfil.put("telefono", usuario.getTelefono());
         perfil.put("rol", usuario.getRol().getNombre());
         return ResponseEntity.ok(perfil);
+    }
+
+    @PostMapping("/cambiar-password")
+    public ResponseEntity<Map<String, String>> cambiarPassword(@RequestBody Map<String, String> body) {
+        Usuario usuario = usuarioContext.getCurrentUser();
+        String currentPassword = body.get("currentPassword");
+        String newPassword = body.get("newPassword");
+
+        Map<String, String> response = new HashMap<>();
+
+        if (currentPassword == null || newPassword == null || newPassword.length() < 6) {
+            response.put("error", "La nueva contraseña debe tener al menos 6 caracteres");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        if (!passwordEncoder.matches(currentPassword, usuario.getPassword())) {
+            response.put("error", "La contraseña actual no es correcta");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        usuario.setPassword(passwordEncoder.encode(newPassword));
+        usuarioRepository.save(usuario);
+
+        response.put("mensaje", "Contraseña actualizada correctamente");
+        return ResponseEntity.ok(response);
     }
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Search, Pencil, Check, Trash2, Loader2, Plus, X } from "lucide-react";
 import { tareaService } from "../services/tareaService";
+import { useNotifications } from "../context/NotificationContext";
 import Toast from "./Toast";
 
 const PRIORIDAD_BADGE = {
@@ -30,6 +31,7 @@ export default function Tareas() {
   const [formData, setFormData] = useState(formVacio);
   const [guardando, setGuardando] = useState(false);
   const [toast, setToast] = useState(null);
+  const { addNotification } = useNotifications();
 
   const mostrarToast = (message, tipo = "success") => setToast({ message, tipo, key: Date.now() });
   const cerrarToast = () => setToast(null);
@@ -116,9 +118,11 @@ export default function Tareas() {
       if (editando) {
         await tareaService.actualizar(editando.id_tarea, payload);
         mostrarToast("Tarea actualizada correctamente");
+        addNotification(`Tarea actualizada: ${payload.titulo}`, "info");
       } else {
         await tareaService.crear(payload);
         mostrarToast("Tarea creada correctamente");
+        addNotification(`Nueva tarea creada: ${payload.titulo}`, "success");
       }
       cerrarModal();
       await cargarTareas();
@@ -133,6 +137,7 @@ export default function Tareas() {
     try {
       await tareaService.actualizar(id, { estado: "COMPLETADA" });
       mostrarToast("Tarea marcada como completada");
+      addNotification("Tarea marcada como completada", "success");
       await cargarTareas();
     } catch (err) {
       mostrarToast(err.message, "error");
@@ -143,6 +148,7 @@ export default function Tareas() {
     try {
       await tareaService.eliminar(id);
       mostrarToast("Tarea eliminada correctamente");
+      addNotification("Tarea eliminada", "info");
       await cargarTareas();
     } catch (err) {
       mostrarToast(err.message, "error");

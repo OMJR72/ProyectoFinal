@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff, Bell, BellOff } from "lucide-react";
 import { usuarioService } from "../services/usuarioService";
 
 const CONFIG_KEY = "pomodoro_config";
@@ -95,14 +95,14 @@ function PanelMiPerfil({ perfil, onGuardar }) {
   );
 }
 
-function SliderMini({ etiqueta, valor, unidad, onChange }) {
+function SliderMini({ etiqueta, valor, unidad, onChange, min = 1, max = 60 }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
         <span className="text-sm text-slate-700">{etiqueta}</span>
         <span className="text-sm text-slate-500">{valor}{unidad}</span>
       </div>
-      <input type="range" min={1} max={60} value={valor} onChange={(e) => onChange(Number(e.target.value))} className="w-full accent-blue-500" />
+      <input type="range" min={min} max={max} value={valor} onChange={(e) => onChange(Number(e.target.value))} className="w-full accent-blue-500" />
     </div>
   );
 }
@@ -114,26 +114,169 @@ function PanelPreferenciasPomodoro({ config, onActualizarConfig }) {
       <SliderMini etiqueta="Enfoque" valor={config.enfoque} unidad="m" onChange={(v) => onActualizarConfig("enfoque", v)} />
       <SliderMini etiqueta="Break Corto" valor={config.breakCorto} unidad="m" onChange={(v) => onActualizarConfig("breakCorto", v)} />
       <SliderMini etiqueta="Break Largo" valor={config.breakLargo} unidad="m" onChange={(v) => onActualizarConfig("breakLargo", v)} />
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-slate-700">Ciclos hasta Break Largo</span>
-        <span className="text-sm text-slate-500">{config.ciclosHastaBreakLargo}</span>
+      <SliderMini etiqueta="Ciclos hasta Break Largo" valor={config.ciclosHastaBreakLargo} unidad="" onChange={(v) => onActualizarConfig("ciclosHastaBreakLargo", v)} min={1} max={10} />
+    </div>
+  );
+}
+
+const NOTIF_KEY = "notificacion_prefs";
+
+function notifPrefsPorDefecto() {
+  return { notificacionesActivas: true };
+}
+
+function cargarNotifPrefs() {
+  try {
+    const saved = localStorage.getItem(NOTIF_KEY);
+    return saved ? JSON.parse(saved) : notifPrefsPorDefecto();
+  } catch {
+    return notifPrefsPorDefecto();
+  }
+}
+
+function guardarNotifPrefs(prefs) {
+  localStorage.setItem(NOTIF_KEY, JSON.stringify(prefs));
+}
+
+function Toggle({ activo, onChange, iconoOn, iconoOff, etiqueta }) {
+  return (
+    <div className="flex items-center justify-between py-2">
+      <div className="flex items-center gap-3">
+        {activo ? iconoOn : iconoOff}
+        <span className="text-sm text-slate-700">{etiqueta}</span>
+      </div>
+      <button
+        type="button"
+        onClick={() => onChange(!activo)}
+        className={`relative w-10 h-6 rounded-full transition-colors ${activo ? "bg-blue-500" : "bg-slate-300"}`}
+      >
+        <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${activo ? "translate-x-4" : ""}`} />
+      </button>
+    </div>
+  );
+}
+
+function PanelNotificaciones() {
+  const [prefs, setPrefs] = useState(cargarNotifPrefs);
+
+  const actualizar = (key, valor) => {
+    const nueva = { ...prefs, [key]: valor };
+    setPrefs(nueva);
+    guardarNotifPrefs(nueva);
+  };
+
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 p-6">
+      <h3 className="text-base font-semibold text-slate-900 mb-4">Preferencias de Notificaciones</h3>
+      <p className="text-sm text-slate-500 mb-4">Por ahora solo están disponibles las notificaciones dentro de la aplicación.</p>
+      <div className="space-y-1">
+        <Toggle
+          activo={prefs.notificacionesActivas}
+          onChange={(v) => actualizar("notificacionesActivas", v)}
+          iconoOn={<Bell className="w-4 h-4 text-blue-500" />}
+          iconoOff={<BellOff className="w-4 h-4 text-slate-400" />}
+          etiqueta="Notificaciones en la aplicación"
+        />
       </div>
     </div>
   );
 }
 
 function PanelSeguridad() {
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [mostrarPasswords, setMostrarPasswords] = useState(false);
+  const [guardando, setGuardando] = useState(false);
+  const [mensaje, setMensaje] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  const handleCambiarPassword = async () => {
+    setMensaje(null);
+    setErrorMsg(null);
+    if (newPassword !== confirmPassword) {
+      setErrorMsg("Las contraseñas nuevas no coinciden");
+      return;
+    }
+    if (newPassword.length < 6) {
+      setErrorMsg("La nueva contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+    setGuardando(true);
+    try {
+      const res = await usuarioService.cambiarPassword({ currentPassword, newPassword });
+      setMensaje(res.mensaje || "Contraseña actualizada");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setMostrarFormulario(false);
+    } catch (err) {
+      setErrorMsg(err.message);
+    } finally {
+      setGuardando(false);
+    }
+  };
+
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-6">
       <h3 className="text-base font-semibold text-slate-900 mb-4">Seguridad</h3>
-      <button className="w-full rounded-lg border border-slate-200 text-sm font-medium text-slate-700 px-4 py-2.5">
-        Cambiar Contraseña
-      </button>
+      {mostrarFormulario ? (
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Contraseña Actual</label>
+            <div className="relative">
+              <input
+                type={mostrarPasswords ? "text" : "password"}
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 text-sm px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button type="button" onClick={() => setMostrarPasswords(!mostrarPasswords)} className="absolute right-3 top-2.5 text-slate-400">
+                {mostrarPasswords ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Nueva Contraseña</label>
+            <input
+              type={mostrarPasswords ? "text" : "password"}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full rounded-lg border border-slate-200 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Confirmar Nueva Contraseña</label>
+            <input
+              type={mostrarPasswords ? "text" : "password"}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full rounded-lg border border-slate-200 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          {errorMsg && <p className="text-sm text-red-500">{errorMsg}</p>}
+          {mensaje && <p className="text-sm text-green-600">{mensaje}</p>}
+          <div className="flex gap-3">
+            <button onClick={handleCambiarPassword} disabled={guardando} className="rounded-lg bg-slate-900 text-white text-sm font-semibold px-5 py-2.5 disabled:opacity-50 flex items-center gap-2">
+              {guardando && <Loader2 className="w-4 h-4 animate-spin" />}
+              Guardar
+            </button>
+            <button onClick={() => { setMostrarFormulario(false); setErrorMsg(null); setMensaje(null); }} className="rounded-lg border border-slate-200 text-slate-700 text-sm font-semibold px-5 py-2.5">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => setMostrarFormulario(true)} className="w-full rounded-lg border border-slate-200 text-sm font-medium text-slate-700 px-4 py-2.5 hover:bg-slate-50">
+          Cambiar Contraseña
+        </button>
+      )}
     </div>
   );
 }
 
-export default function Configuracion() {
+export default function Configuracion({ onPerfilActualizado }) {
   const [tabActiva, setTabActiva] = useState(TABS[0]);
   const [perfil, setPerfil] = useState(null);
   const [pomodoroConfig, setPomodoroConfig] = useState(cargarConfig);
@@ -159,7 +302,9 @@ export default function Configuracion() {
 
   const handleGuardarPerfil = async (data) => {
     const updated = await usuarioService.actualizarPerfil(data);
-    setPerfil({ ...perfil, ...updated });
+    const nuevoPerfil = { ...perfil, ...updated };
+    setPerfil(nuevoPerfil);
+    if (onPerfilActualizado) onPerfilActualizado({ nombre: nuevoPerfil.nombre, apellido: nuevoPerfil.apellido });
   };
 
   const actualizarConfig = (key, value) => {
@@ -207,11 +352,7 @@ export default function Configuracion() {
 
           {tabActiva === "Mi Perfil" && <PanelMiPerfil perfil={perfil} onGuardar={handleGuardarPerfil} />}
           {tabActiva === "Preferencias Pomodoro" && <PanelPreferenciasPomodoro config={pomodoroConfig} onActualizarConfig={actualizarConfig} />}
-          {tabActiva === "Notificaciones" && (
-            <div className="bg-white rounded-xl border border-slate-200 p-6 text-sm text-slate-500">
-              Aquí se configurarán las preferencias de notificaciones.
-            </div>
-          )}
+          {tabActiva === "Notificaciones" && <PanelNotificaciones />}
           {tabActiva === "Seguridad" && <PanelSeguridad />}
         </div>
 

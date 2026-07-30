@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useMemo } from "react";
 import { Play, Pause, RotateCcw, Loader2 } from "lucide-react";
 import { tareaService } from "../services/tareaService";
 import { sesionService } from "../services/sesionService";
+import { useNotifications } from "../context/NotificationContext";
 
 const CONFIG_KEY = "pomodoro_config";
 
@@ -80,6 +81,7 @@ export default function Pomodoro() {
   const [tiempoRestante, setTiempoRestante] = useState(config.enfoque * 60);
   const sesionIdRef = useRef(null);
   const intervalRef = useRef(null);
+  const { addNotification } = useNotifications();
 
   const FASES = useMemo(() => generarFases(config), [config]);
   const faseActual = FASES[paso];
@@ -164,6 +166,7 @@ export default function Pomodoro() {
         estado: "COMPLETADA",
       }).catch(() => {});
       sesionIdRef.current = null;
+      addNotification("Ciclo de enfoque completado", "pomodoro");
     }
 
     const siguiente = paso + 1;
@@ -172,6 +175,7 @@ export default function Pomodoro() {
       setPausado(false);
       setPaso(0);
       setTiempoRestante(config.enfoque * 60);
+      addNotification("Ciclo Pomodoro completado", "success");
       return;
     }
 

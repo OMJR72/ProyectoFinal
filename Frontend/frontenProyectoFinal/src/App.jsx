@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Login from "./components/Login";
 import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
+import { NotificationProvider } from "./context/NotificationContext";
 
 import Dashboard from "./components/Dashboard";
 import Tareas from "./components/Tareas";
@@ -71,6 +72,12 @@ export default function App() {
     );
   };
 
+  const handlePerfilActualizado = (datos) => {
+    const actualizado = { ...user, ...datos };
+    setUser(actualizado);
+    sessionStorage.setItem("user", JSON.stringify(actualizado));
+  };
+
   const handleLogout = () => {
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("user");
@@ -100,47 +107,50 @@ export default function App() {
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-100">
+    <NotificationProvider>
+      <div className="flex min-h-screen bg-slate-100">
 
-      <Sidebar
-        activeTab={activeTab}
-        setActiveTab={handleTabChange}
-      />
-
-      <div className="flex-1 min-w-0">
-
-        <Navbar
+        <Sidebar
           activeTab={activeTab}
-          user={user}
-          onLogout={handleLogout}
+          setActiveTab={handleTabChange}
         />
 
-        <main className="p-6">
+        <div className="flex-1 min-w-0">
 
-          {activeTab === "dashboard" && (
-            <Dashboard onTabChange={handleTabChange} />
-          )}
+          <Navbar
+            activeTab={activeTab}
+            user={user}
+            onLogout={handleLogout}
+            onTabChange={handleTabChange}
+          />
 
-          {activeTab === "tareas" && (
-            <Tareas />
-          )}
+          <main className="p-6">
 
-          {activeTab === "pomodoro" && (
-            <Pomodoro />
-          )}
+            {activeTab === "dashboard" && (
+              <Dashboard onTabChange={handleTabChange} />
+            )}
 
-          {activeTab === "estadisticas" && (
-            <Estadisticas />
-          )}
+            {activeTab === "tareas" && (
+              <Tareas />
+            )}
+
+            {activeTab === "pomodoro" && (
+              <Pomodoro />
+            )}
+
+            {activeTab === "estadisticas" && (
+              <Estadisticas />
+            )}
 
           {activeTab === "configuracion" && (
-            <Configuracion />
+            <Configuracion onPerfilActualizado={handlePerfilActualizado} />
           )}
 
-        </main>
+          </main>
+
+        </div>
 
       </div>
-
-    </div>
+    </NotificationProvider>
   );
 }
