@@ -46,6 +46,8 @@ export default function Navbar() {
     ? `${user.nombre?.charAt(0) ?? ""}${user.apellido?.charAt(0) ?? ""}`
     : "U";
 
+  const fotoPerfil = user?.foto ? `http://localhost:8080${user.foto}` : null;
+
   const handleLogout = () => {
     logout();
     navigate("/login", { replace: true });
@@ -120,9 +122,13 @@ export default function Navbar() {
             onClick={() => setMenuAbierto(!menuAbierto)}
             className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-800 transition-colors"
           >
-            <div className="w-9 h-9 rounded-full bg-purple-500 flex items-center justify-center text-white text-sm font-medium">
-              {iniciales}
-            </div>
+            {fotoPerfil ? (
+              <img src={fotoPerfil} alt="" className="w-9 h-9 rounded-full object-cover" />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-purple-500 flex items-center justify-center text-white text-sm font-medium">
+                {iniciales}
+              </div>
+            )}
             <div className="text-left hidden sm:block">
               <p className="text-sm font-medium text-slate-100">
                 {nombreCompleto}
@@ -140,9 +146,13 @@ export default function Navbar() {
             <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden">
               <div className="p-4 border-b border-slate-200">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-full bg-purple-500 flex items-center justify-center text-white text-base font-medium">
-                    {iniciales}
-                  </div>
+                  {fotoPerfil ? (
+                    <img src={fotoPerfil} alt="" className="w-11 h-11 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-11 h-11 rounded-full bg-purple-500 flex items-center justify-center text-white text-base font-medium">
+                      {iniciales}
+                    </div>
+                  )}
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-slate-900 truncate">
                       {nombreCompleto}

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Loader2, Eye, EyeOff, Bell, BellOff } from "lucide-react";
+import React, { useEffect, useState, useRef } from "react";
+import { Loader2, Eye, EyeOff, Bell, BellOff, Camera } from "lucide-react";
 import { usuarioService } from "../services/usuarioService";
 import { useAuth } from "../context/AuthContext";
 
@@ -48,12 +48,18 @@ function CampoTexto({ etiqueta, valorInicial, tipo = "text", onChange }) {
   );
 }
 
-function PanelMiPerfil({ perfil, onGuardar }) {
+const BASE_URL = 'http://localhost:8080';
+
+function PanelMiPerfil({ perfil, onGuardar, onFotoSubida }) {
+  const fileInputRef = useRef(null);
   const [editando, setEditando] = useState({ ...perfil });
   const [guardando, setGuardando] = useState(false);
+  const [subiendoFoto, setSubiendoFoto] = useState(false);
+  const [fotoUrl, setFotoUrl] = useState(perfil?.foto ? BASE_URL + perfil.foto : null);
 
   useEffect(() => {
     setEditando({ ...perfil });
+    setFotoUrl(perfil?.foto ? BASE_URL + perfil.foto : null);
   }, [perfil]);
 
   const handleGuardar = async () => {
@@ -65,13 +71,52 @@ function PanelMiPerfil({ perfil, onGuardar }) {
     }
   };
 
+  const handleSubirFoto = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSubiendoFoto(true);
+    try {
+      const res = await usuarioService.subirFoto(file);
+      setFotoUrl(BASE_URL + res.foto);
+      if (onFotoSubida) onFotoSubida(res.foto);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } catch (err) {
+      alert("Error al subir la foto: " + err.message);
+    } finally {
+      setSubiendoFoto(false);
+    }
+  };
+
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-6">
       <div className="flex flex-col items-center mb-6">
-        <div className="w-20 h-20 rounded-full bg-purple-500 flex items-center justify-center text-white text-2xl font-bold mb-3">
-          {((perfil?.nombre ?? "U").charAt(0) + (perfil?.apellido ?? "").charAt(0)) || "U"}
+        <div className="relative w-20 h-20 mb-3">
+          {fotoUrl ? (
+            <img src={fotoUrl} alt="Foto de perfil" className="w-20 h-20 rounded-full object-cover" />
+          ) : (
+            <div className="w-20 h-20 rounded-full bg-purple-500 flex items-center justify-center text-white text-2xl font-bold">
+              {((perfil?.nombre ?? "U").charAt(0) + (perfil?.apellido ?? "").charAt(0)) || "U"}
+            </div>
+          )}
+          {subiendoFoto && (
+            <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
+              <Loader2 className="w-5 h-5 animate-spin text-white" />
+            </div>
+          )}
         </div>
-        <button className="rounded-lg border border-slate-200 text-sm font-medium text-slate-700 px-4 py-1.5">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleSubirFoto}
+          className="hidden"
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={subiendoFoto}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 px-4 py-1.5 hover:bg-slate-50 disabled:opacity-50"
+        >
+          <Camera className="w-3.5 h-3.5" />
           Cambiar Foto
         </button>
       </div>
@@ -309,6 +354,11 @@ export default function Configuracion() {
     actualizarPerfil({ nombre: nuevoPerfil.nombre, apellido: nuevoPerfil.apellido });
   };
 
+  const handleFotoSubida = (foto) => {
+    setPerfil(prev => ({ ...prev, foto }));
+    actualizarPerfil({ foto });
+  };
+
   const actualizarConfig = (key, value) => {
     const nueva = { ...pomodoroConfig, [key]: value };
     setPomodoroConfig(nueva);
@@ -352,7 +402,7 @@ export default function Configuracion() {
             ))}
           </div>
 
-          {tabActiva === "Mi Perfil" && <PanelMiPerfil perfil={perfil} onGuardar={handleGuardarPerfil} />}
+          {tabActiva === "Mi Perfil" && <PanelMiPerfil perfil={perfil} onGuardar={handleGuardarPerfil} onFotoSubida={handleFotoSubida} />}
           {tabActiva === "Preferencias Pomodoro" && <PanelPreferenciasPomodoro config={pomodoroConfig} onActualizarConfig={actualizarConfig} />}
           {tabActiva === "Notificaciones" && <PanelNotificaciones />}
           {tabActiva === "Seguridad" && <PanelSeguridad />}

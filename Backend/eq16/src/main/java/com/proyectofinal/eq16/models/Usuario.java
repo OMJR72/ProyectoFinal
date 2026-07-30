@@ -45,6 +45,9 @@ public class Usuario {
     @Column(name = "puntos", nullable = false)
     private Long puntos;
 
+    @Column(name = "foto")
+    private String foto;
+
     public Usuario() {
     }
 
@@ -136,5 +139,13 @@ public class Usuario {
 
     public void setPuntos(Long puntos) {
         this.puntos = puntos;
+    }
+
+    public String getFoto() {
+        return foto;
+    }
+
+    public void setFoto(String foto) {
+        this.foto = foto;
     }
 }

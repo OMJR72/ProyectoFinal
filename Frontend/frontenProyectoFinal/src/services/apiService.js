@@ -36,9 +36,28 @@ async function request(method, path, body) {
   return text ? JSON.parse(text) : null;
 }
 
+async function uploadFile(path, formData) {
+  const url = `${BASE_URL}${path}`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => null);
+    let message;
+    try { message = JSON.parse(text).error; } catch { message = text || `Error ${response.status}`; }
+    throw new Error(message);
+  }
+
+  return response.json();
+}
+
 export const api = {
   get: (path) => request('GET', path),
   post: (path, body) => request('POST', path, body),
   put: (path, body) => request('PUT', path, body),
   del: (path) => request('DELETE', path),
+  upload: (path, formData) => uploadFile(path, formData),
 };

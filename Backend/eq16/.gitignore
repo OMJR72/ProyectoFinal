@@ -33,5 +33,8 @@ build/
 *.log
 startup*.err
 
+### Uploaded files ###
+uploads/
+
 ### VS Code ###
 .vscode/

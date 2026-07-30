@@ -6,4 +6,10 @@ export const usuarioService = {
   actualizarPerfil: (data) => api.put('/usuarios/perfil', data),
 
   cambiarPassword: (data) => api.post('/usuarios/cambiar-password', data),
+
+  subirFoto: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.upload('/usuarios/subir-foto', formData);
+  },
 };

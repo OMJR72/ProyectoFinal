@@ -6,9 +6,21 @@ import com.proyectofinal.eq16.security.UsuarioContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -38,6 +50,7 @@ public class UsuarioController {
         perfil.put("puntos", usuario.getPuntos());
         perfil.put("rol", usuario.getRol().getNombre());
         perfil.put("fechaRegistro", usuario.getFecha_registro());
+        perfil.put("foto", usuario.getFoto());
         return ResponseEntity.ok(perfil);
     }
 
@@ -82,5 +95,58 @@ public class UsuarioController {
 
         response.put("mensaje", "Contraseña actualizada correctamente");
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/subir-foto")
+    public ResponseEntity<Map<String, String>> subirFoto(@RequestParam("file") MultipartFile file) {
+        Map<String, String> response = new HashMap<>();
+        if (file.isEmpty()) {
+            response.put("error", "No se seleccionó ningún archivo");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        try {
+            String uploadDir = "uploads/avatars/";
+            File dir = new File(uploadDir);
+            if (!dir.exists()) dir.mkdirs();
+
+            String ext = "";
+            String originalName = file.getOriginalFilename();
+            if (originalName != null && originalName.contains(".")) {
+                ext = originalName.substring(originalName.lastIndexOf("."));
+            }
+            String filename = UUID.randomUUID().toString() + ext;
+            Path path = Paths.get(uploadDir + filename);
+            Files.write(path, file.getBytes());
+
+            Usuario usuario = usuarioContext.getCurrentUser();
+            usuario.setFoto("/api/usuarios/uploads/avatars/" + filename);
+            usuarioRepository.save(usuario);
+
+            response.put("foto", usuario.getFoto());
+            response.put("mensaje", "Foto actualizada correctamente");
+            return ResponseEntity.ok(response);
+        } catch (IOException e) {
+            response.put("error", "Error al subir el archivo: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+
+    @GetMapping("/uploads/avatars/{filename:.+}")
+    public ResponseEntity<Resource> getAvatar(@PathVariable String filename) {
+        try {
+            Path filePath = Paths.get("uploads/avatars/").resolve(filename).normalize();
+            File file = filePath.toFile();
+            if (!file.exists()) {
+                return ResponseEntity.notFound().build();
+            }
+            String mimeType = Files.probeContentType(filePath);
+            if (mimeType == null) mimeType = "application/octet-stream";
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(mimeType))
+                    .body(new FileSystemResource(file));
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
