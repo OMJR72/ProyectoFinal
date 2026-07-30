@@ -3,15 +3,23 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import logoImg from '../assets/Logo_Proyecto.png';
 import { loginUser, registerUser } from '../services/authService';
+import { usuarioService } from '../services/usuarioService';
 import { useAuth } from '../context/AuthContext';
 import '../css/Login.css';
 
+const ROLES = [
+  { key: 'user',     label: 'Usuario',        color: 'slate',  email: 'user@synapse.com',     password: 'user123' },
+  { key: 'analista', label: 'Analista',        color: 'blue',   email: 'analista@synapse.com', password: 'analista123' },
+  { key: 'admin',    label: 'Administrador',   color: 'purple', email: 'admin@synapse.com',    password: 'admin123' },
+];
+
 export default function Login() {
-  const { login } = useAuth();
+  const { login, actualizarPerfil } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get('redirect') || '/dashboard';
   const [isRegistering, setIsRegistering] = useState(false);
+  const [loginRol, setLoginRol] = useState('user');
 
   const [name, setName] = useState('');
   const [apellido, setApellido] = useState('');
@@ -25,6 +33,18 @@ export default function Login() {
 
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+
+  const rolActual = ROLES.find((r) => r.key === loginRol);
+
+  const seleccionarRol = (key) => {
+    setLoginRol(key);
+    const r = ROLES.find((ro) => ro.key === key);
+    if (r) {
+      setEmail(r.email);
+      setPassword(r.password);
+    }
+    setErrorMessage('');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -71,7 +91,11 @@ export default function Login() {
           nombre: response.nombre,
           apellido: response.apellido,
           rol: response.rol,
+          foto: response.foto,
         }, response.token);
+
+        const perfil = await usuarioService.obtenerPerfil();
+        if (perfil.foto) actualizarPerfil({ foto: perfil.foto });
 
         navigate(redirectTo, { replace: true });
       }
@@ -120,6 +144,27 @@ export default function Login() {
           </h1>
 
         </div>
+
+        {!isRegistering && (
+          <div className="grid grid-cols-3 gap-1.5">
+            {ROLES.map((r) => {
+              const activo = loginRol === r.key;
+              const base = activo
+                ? 'bg-[#A78BFA] text-white shadow-md'
+                : 'bg-slate-100 text-slate-500 hover:bg-slate-200';
+              return (
+                <button
+                  key={r.key}
+                  type="button"
+                  onClick={() => seleccionarRol(r.key)}
+                  className={`text-xs font-semibold px-3 py-2 rounded-xl transition-all cursor-pointer ${base}`}
+                >
+                  {r.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {successMessage && (
           <div className="bg-green-100 border border-green-300 text-green-700 text-xs p-3 rounded-xl text-center">
@@ -179,7 +224,7 @@ export default function Login() {
           <div className="space-y-1">
 
             <label className="block text-xs font-semibold text-gray-700">
-              Correo Electrónico
+              {isRegistering ? 'Correo Electrónico' : `Correo de ${rolActual?.label ?? 'Usuario'}`}
             </label>
 
             <input
@@ -196,7 +241,7 @@ export default function Login() {
           <div className="space-y-1">
 
             <label className="block text-xs font-semibold text-gray-700">
-              Contraseña
+              {isRegistering ? 'Contraseña' : `Contraseña de ${rolActual?.label ?? 'Usuario'}`}
             </label>
 
             <div className="relative">
@@ -259,7 +304,7 @@ export default function Login() {
               <span>
                 {isRegistering
                   ? 'Registrarse'
-                  : 'Iniciar Sesión'}
+                  : `Iniciar como ${rolActual?.label ?? 'Usuario'}`}
               </span>
             )}
 

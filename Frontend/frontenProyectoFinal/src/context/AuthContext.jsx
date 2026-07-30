@@ -34,10 +34,12 @@ export function AuthProvider({ children }) {
   }, []);
 
   const actualizarPerfil = useCallback((datos) => {
-    const actualizado = { ...user, ...datos };
-    setUser(actualizado);
-    sessionStorage.setItem("user", JSON.stringify(actualizado));
-  }, [user]);
+    setUser((prev) => {
+      const actualizado = { ...prev, ...datos };
+      sessionStorage.setItem("user", JSON.stringify(actualizado));
+      return actualizado;
+    });
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, loading, login, logout, actualizarPerfil }}>

@@ -8,6 +8,8 @@ import Tareas from "./components/Tareas";
 import Pomodoro from "./components/Pomodoro";
 import Estadisticas from "./components/Estadisticas";
 import Configuracion from "./components/Configuracion";
+import AdminUsuarios from "./components/AdminUsuarios";
+import ReportesAnalista from "./components/ReportesAnalista";
 import { NotificationProvider } from "./context/NotificationContext";
 
 export default function App() {
@@ -41,6 +43,8 @@ export default function App() {
           <Route path="pomodoro" element={<Pomodoro />} />
           <Route path="estadisticas" element={<Estadisticas />} />
           <Route path="configuracion" element={<Configuracion />} />
+          <Route path="usuarios" element={<AdminUsuarios />} />
+          <Route path="reportes" element={<ReportesAnalista />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

@@ -133,8 +133,14 @@ export default function Navbar() {
               <p className="text-sm font-medium text-slate-100">
                 {nombreCompleto}
               </p>
-              <p className="text-xs text-slate-400">
-                {user?.rol ?? "Usuario"}
+              <p className="text-xs">
+                <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                  user?.rol === "ADMIN" ? "bg-purple-500/20 text-purple-300" :
+                  user?.rol === "ANALISTA" ? "bg-blue-500/20 text-blue-300" :
+                  "bg-slate-500/20 text-slate-400"
+                }`}>
+                  {user?.rol ?? "Usuario"}
+                </span>
               </p>
             </div>
             <ChevronDown

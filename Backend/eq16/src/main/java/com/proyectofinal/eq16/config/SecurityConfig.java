@@ -90,6 +90,10 @@ public class SecurityConfig {
                                 "/api/usuarios/uploads/**"
                         ).permitAll()
 
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                        .requestMatchers("/api/analista/**").hasAnyRole("ANALISTA", "ADMIN")
+
                         .anyRequest().authenticated()
                 )
 
