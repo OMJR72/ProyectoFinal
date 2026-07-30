@@ -17,11 +17,11 @@ import java.util.Date;
 @Component
 public class JwtService {
     
-    @Value("$(jwt.secret)")
+    @Value("${jwt.secret}")
     private String clave;
 
-    @Value("$(jwt.expiration)")
-    private long expiracion;
+    @Value("${jwt.expiration-ms}")
+    private Long expiracion;
 
 
     private SecretKey getSigningKey() {

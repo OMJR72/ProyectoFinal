@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-Eq16Application<eq16>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.proyectofinal.eq16.Eq16Application",
+            "projectName": "eq16",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

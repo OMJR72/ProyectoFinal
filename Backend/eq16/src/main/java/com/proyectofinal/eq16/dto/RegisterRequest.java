@@ -18,11 +18,10 @@ public class RegisterRequest{
 
     private Long idRol;
 
-    public RegisterRequest(String nombre, String password, String email, Long idRol) {
+    public RegisterRequest(String nombre, String password, String email) {
         this.nombre = nombre;
         this.password = password;
         this.email = email;
-        this.idRol = idRol;
     }
 
     public String getnombre() {

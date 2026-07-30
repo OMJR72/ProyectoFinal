@@ -1,7 +1,7 @@
 package com.proyectofinal.eq16.models;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "usuarios")
@@ -9,6 +9,7 @@ public class Usuario{
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_usuario")
     private Long id;
 
     @Column(nullable = false)
@@ -17,18 +18,21 @@ public class Usuario{
     @Column(nullable = false)
     private String apellido;
 
-    @Column(nullable = false)
+    @Column(name = "correo", nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "contrasena", nullable = false)
     private String password;
 
+    @Column(name = "telefono")
+    private String telefono;
+
     @ManyToOne
-    @JoinColumn(name = "rol_id", nullable = false)
+    @JoinColumn(name = "id_rol", nullable = false)
     private Rol rol;
 
-    @Column(nullable = false)
-    private LocalDate fecha_registro;
+    @Column(insertable = false, updatable = false)
+    private LocalDateTime fecha_registro;
 
     @Column(nullable = false)
     private Long puntos;
@@ -36,7 +40,7 @@ public class Usuario{
     public Usuario() {
     }
 
-    public Usuario(String nombre, String apellido, String email, String password, Rol rol, LocalDate fecha_registro, Long puntos){
+    public Usuario(String nombre, String apellido, String email, String password, Rol rol, LocalDateTime fecha_registro, Long puntos){
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
@@ -86,6 +90,14 @@ public class Usuario{
         this.password = password;
     }
 
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
     public Rol getRol() {
         return rol;
     }
@@ -94,11 +106,11 @@ public class Usuario{
         this.rol = rol;
     }
 
-    public LocalDate getFecha_registro() {
+    public LocalDateTime getFecha_registro() {
         return fecha_registro;
     }
 
-    public void setFecha_registro(LocalDate fecha_registro) {
+    public void setFecha_registro(LocalDateTime fecha_registro) {
         this.fecha_registro = fecha_registro;
     }
 

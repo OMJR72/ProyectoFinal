@@ -4,36 +4,30 @@ import jakarta.validation.constraints.NotBlank;
 
 public class LoginRequest{
 
-    @NotBlank(message = "El nombre es obligatorio")
-    private String nombre;
-
-    @NotBlank(message = "El apellido es obligatorio")
-    private String apellido;
+    @NotBlank(message = "El correo es obligatorio")
+    private String email;
 
     @NotBlank(message = "El password es obligatorio")
     private String password;
 
-    public String getnombre() {
-        return nombre;
+    public LoginRequest(String email, String password){
+        this.email = email;
+        this.password = password;
     }
 
-    public void setnombre(String nombre) {
-        this.nombre = nombre;
+    public String getEmail() {
+        return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
     public String getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getApellido() {
-        return apellido;
-    }
-
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
     }
 }
