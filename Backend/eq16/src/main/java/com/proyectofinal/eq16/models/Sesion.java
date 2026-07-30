@@ -10,7 +10,7 @@ public class Sesion {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "sesion_id")
+    @Column(name = "id_sesion")
     private Long sesion_id;
 
     @Column(name = "fecha_inicio")

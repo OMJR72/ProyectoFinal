@@ -1,82 +1,25 @@
-const BASE_URL = 'http://localhost:8080/api/auth';
+import { api } from './apiService';
 
 export const loginUser = async (email, password) => {
-  try {
-    const response = await fetch(
-      `${BASE_URL}/login`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      }
+  const data = await api.post('/auth/login', { email, password });
+
+  if (data.token) {
+    sessionStorage.setItem('token', data.token);
+    sessionStorage.setItem(
+      'user',
+      JSON.stringify({
+        id: data.id,
+        email: data.email,
+        nombre: data.nombre,
+        apellido: data.apellido,
+        rol: data.rol,
+      })
     );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data.message || 'Credenciales inválidas'
-      );
-    }
-
-    if (data.token) {
-      sessionStorage.setItem('token', data.token);
-      sessionStorage.setItem(
-        'user',
-        JSON.stringify({
-          id: data.id,
-          email: data.email,
-          nombre: data.nombre,
-          apellido: data.apellido,
-          rol: data.rol,
-        })
-      );
-    }
-
-    return data;
-  } catch (error) {
-    throw error;
   }
+
+  return data;
 };
 
-export const registerUser = async (
-  nombre,
-  apellido,
-  email,
-  password
-) => {
-  try {
-    const response = await fetch(
-      `${BASE_URL}/register/user`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          nombre,
-          apellido,
-          email,
-          password,
-        }),
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data.message || 'Error al registrar el usuario'
-      );
-    }
-
-    return data;
-  } catch (error) {
-    throw error;
-  }
+export const registerUser = async (nombre, apellido, email, password) => {
+  return api.post('/auth/register/user', { nombre, apellido, email, password });
 };
