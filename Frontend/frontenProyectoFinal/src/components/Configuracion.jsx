@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Loader2, Eye, EyeOff, Bell, BellOff } from "lucide-react";
 import { usuarioService } from "../services/usuarioService";
+import { useAuth } from "../context/AuthContext";
 
 const CONFIG_KEY = "pomodoro_config";
 
@@ -276,7 +277,8 @@ function PanelSeguridad() {
   );
 }
 
-export default function Configuracion({ onPerfilActualizado }) {
+export default function Configuracion() {
+  const { actualizarPerfil } = useAuth();
   const [tabActiva, setTabActiva] = useState(TABS[0]);
   const [perfil, setPerfil] = useState(null);
   const [pomodoroConfig, setPomodoroConfig] = useState(cargarConfig);
@@ -304,7 +306,7 @@ export default function Configuracion({ onPerfilActualizado }) {
     const updated = await usuarioService.actualizarPerfil(data);
     const nuevoPerfil = { ...perfil, ...updated };
     setPerfil(nuevoPerfil);
-    if (onPerfilActualizado) onPerfilActualizado({ nombre: nuevoPerfil.nombre, apellido: nuevoPerfil.apellido });
+    actualizarPerfil({ nombre: nuevoPerfil.nombre, apellido: nuevoPerfil.apellido });
   };
 
   const actualizarConfig = (key, value) => {

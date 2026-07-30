@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import logoImg from '../assets/Logo_Proyecto.png';
 import { loginUser, registerUser } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
 import '../css/Login.css';
 
-export default function Login({ onLoginSuccess }) {
+export default function Login() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/dashboard';
   const [isRegistering, setIsRegistering] = useState(false);
 
   const [name, setName] = useState('');
@@ -59,15 +65,15 @@ export default function Login({ onLoginSuccess }) {
           password
         );
 
-        if (onLoginSuccess) {
-          onLoginSuccess({
-            id: response.id,
-            email: response.email,
-            nombre: response.nombre,
-            apellido: response.apellido,
-            rol: response.rol,
-          });
-        }
+        login({
+          id: response.id,
+          email: response.email,
+          nombre: response.nombre,
+          apellido: response.apellido,
+          rol: response.rol,
+        }, response.token);
+
+        navigate(redirectTo, { replace: true });
       }
     } catch (error) {
       setErrorMessage(

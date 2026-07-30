@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutGrid,
   CheckSquare,
@@ -16,7 +17,11 @@ const NAV_ITEMS = [
   { key: "configuracion", label: "Configuración", icon: Settings },
 ];
 
-export default function Sidebar({ activeTab, setActiveTab }) {
+export default function Sidebar() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const activeTab = location.pathname.split("/").pop();
+
   return (
     <aside className="w-60 shrink-0 bg-slate-900 text-slate-200 flex flex-col h-screen sticky top-0">
       <div className="flex items-center gap-2 px-6 py-6">
@@ -37,7 +42,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
             <button
               key={key}
               type="button"
-              onClick={() => setActiveTab(key)}
+              onClick={() => navigate(`/${key}`)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 isActive
                   ? "bg-slate-800 text-white"

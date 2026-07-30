@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Search, Pencil, Check, Trash2, Loader2, Plus, X } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { Search, Pencil, Check, Trash2, Loader2, Plus, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { tareaService } from "../services/tareaService";
 import { useNotifications } from "../context/NotificationContext";
 import Toast from "./Toast";
@@ -19,7 +20,10 @@ const formVacio = {
   titulo: "", descripcion: "", fecha_limite: "", prioridad: "MEDIA", estado: "PENDIENTE",
 };
 
+const OPCIONES_TAMANO = [5, 10, 20, 50];
+
 export default function Tareas() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [busqueda, setBusqueda] = useState("");
   const [filtroPrioridad, setFiltroPrioridad] = useState("TODAS");
   const [filtroEstado, setFiltroEstado] = useState("TODOS");
@@ -32,6 +36,22 @@ export default function Tareas() {
   const [guardando, setGuardando] = useState(false);
   const [toast, setToast] = useState(null);
   const { addNotification } = useNotifications();
+
+  const pagina = parseInt(searchParams.get("pagina") || "1", 10);
+  const tamanioPagina = parseInt(searchParams.get("tamanio") || "10", 10);
+
+  const setPagina = (p) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("pagina", String(p));
+    setSearchParams(params, { replace: true });
+  };
+
+  const setTamanioPagina = (t) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("tamanio", String(t));
+    params.set("pagina", "1");
+    setSearchParams(params, { replace: true });
+  };
 
   const mostrarToast = (message, tipo = "success") => setToast({ message, tipo, key: Date.now() });
   const cerrarToast = () => setToast(null);
@@ -94,6 +114,13 @@ export default function Tareas() {
 
     return resultado;
   }, [tareas, busqueda, filtroPrioridad, filtroEstado, ordenPor]);
+
+  const totalPaginas = Math.max(1, Math.ceil(tareasFiltradas.length / tamanioPagina));
+  const paginaSegura = Math.min(pagina, totalPaginas);
+  const tareasPaginadas = useMemo(() => {
+    const inicio = (paginaSegura - 1) * tamanioPagina;
+    return tareasFiltradas.slice(inicio, inicio + tamanioPagina);
+  }, [tareasFiltradas, paginaSegura, tamanioPagina]);
 
   const abrirModalNueva = () => { setEditando(null); setFormData(formVacio); setShowModal(true); };
   const cerrarModal = () => { setShowModal(false); setEditando(null); setFormData(formVacio); };
@@ -196,46 +223,87 @@ export default function Tareas() {
       ) : tareasFiltradas.length === 0 ? (
         <div className="text-center py-12 text-slate-400 text-sm">No hay tareas registradas. Crea una nueva.</div>
       ) : (
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-slate-500 border-b border-slate-200 bg-slate-50">
-                <th className="py-3 px-4 font-medium">Tarea</th>
-                <th className="py-3 px-4 font-medium">Prioridad</th>
-                <th className="py-3 px-4 font-medium">Estado</th>
-                <th className="py-3 px-4 font-medium">Fecha Límite</th>
-                <th className="py-3 px-4 font-medium">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tareasFiltradas.map((tarea) => (
-                <tr key={tarea.id_tarea} className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="py-3 px-4 text-slate-800">{tarea.titulo}</td>
-                  <td className="py-3 px-4">
-                    <span className={`px-2 py-1 rounded-md text-xs font-medium ${PRIORIDAD_BADGE[tarea.prioridad] ?? "bg-slate-100"}`}>
-                      {PRIORIDAD_LABEL[tarea.prioridad] ?? tarea.prioridad}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className={`px-2 py-1 rounded-md text-xs font-medium ${ESTADO_BADGE[tarea.estado] ?? "bg-slate-100"}`}>
-                      {ESTADO_LABEL[tarea.estado] ?? tarea.estado}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-slate-600">{tarea.fecha_limite ?? "-"}</td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => abrirModalEditar(tarea)} aria-label="Editar tarea" className="text-slate-400 hover:text-blue-500"><Pencil className="w-4 h-4" /></button>
-                      {tarea.estado !== "COMPLETADA" && (
-                        <button onClick={() => completarTarea(tarea.id_tarea)} aria-label="Completar tarea" className="text-slate-400 hover:text-green-500"><Check className="w-4 h-4" /></button>
-                      )}
-                      <button onClick={() => eliminarTarea(tarea.id_tarea)} aria-label="Eliminar tarea" className="text-slate-400 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
-                    </div>
-                  </td>
+        <>
+          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-slate-500 border-b border-slate-200 bg-slate-50">
+                  <th className="py-3 px-4 font-medium">Tarea</th>
+                  <th className="py-3 px-4 font-medium">Prioridad</th>
+                  <th className="py-3 px-4 font-medium">Estado</th>
+                  <th className="py-3 px-4 font-medium">Fecha Límite</th>
+                  <th className="py-3 px-4 font-medium">Acciones</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {tareasPaginadas.map((tarea) => (
+                  <tr key={tarea.id_tarea} className="border-b border-slate-100 hover:bg-slate-50">
+                    <td className="py-3 px-4 text-slate-800">{tarea.titulo}</td>
+                    <td className="py-3 px-4">
+                      <span className={`px-2 py-1 rounded-md text-xs font-medium ${PRIORIDAD_BADGE[tarea.prioridad] ?? "bg-slate-100"}`}>
+                        {PRIORIDAD_LABEL[tarea.prioridad] ?? tarea.prioridad}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className={`px-2 py-1 rounded-md text-xs font-medium ${ESTADO_BADGE[tarea.estado] ?? "bg-slate-100"}`}>
+                        {ESTADO_LABEL[tarea.estado] ?? tarea.estado}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-slate-600">{tarea.fecha_limite ?? "-"}</td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => abrirModalEditar(tarea)} aria-label="Editar tarea" className="text-slate-400 hover:text-blue-500"><Pencil className="w-4 h-4" /></button>
+                        {tarea.estado !== "COMPLETADA" && (
+                          <button onClick={() => completarTarea(tarea.id_tarea)} aria-label="Completar tarea" className="text-slate-400 hover:text-green-500"><Check className="w-4 h-4" /></button>
+                        )}
+                        <button onClick={() => eliminarTarea(tarea.id_tarea)} aria-label="Eliminar tarea" className="text-slate-400 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-slate-500">Mostrar</span>
+              <select
+                value={tamanioPagina}
+                onChange={(e) => setTamanioPagina(Number(e.target.value))}
+                className="rounded-lg border border-slate-200 text-sm text-slate-700 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {OPCIONES_TAMANO.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+              <span className="text-sm text-slate-500">
+                de {tareasFiltradas.length} tarea(s)
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={paginaSegura <= 1}
+                onClick={() => setPagina(paginaSegura - 1)}
+                className="rounded-lg border border-slate-200 text-slate-700 px-3 py-1.5 text-sm disabled:opacity-40 hover:bg-slate-50"
+              >
+                <ChevronLeft className="w-4 h-4 inline" /> Anterior
+              </button>
+              <span className="text-sm text-slate-500">
+                Pág. {paginaSegura} de {totalPaginas}
+              </span>
+              <button
+                type="button"
+                disabled={paginaSegura >= totalPaginas}
+                onClick={() => setPagina(paginaSegura + 1)}
+                className="rounded-lg border border-slate-200 text-slate-700 px-3 py-1.5 text-sm disabled:opacity-40 hover:bg-slate-50"
+              >
+                Siguiente <ChevronRight className="w-4 h-4 inline" />
+              </button>
+            </div>
+          </div>
+        </>
       )}
 
       {showModal && (

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Play, Settings2, Loader2 } from "lucide-react";
 import { dashboardService } from "../services/dashboardService";
 
@@ -117,7 +118,8 @@ function AnilloPomodoro({ data }) {
   );
 }
 
-export default function Dashboard({ onTabChange }) {
+export default function Dashboard() {
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -191,14 +193,14 @@ export default function Dashboard({ onTabChange }) {
         </h3>
         <AnilloPomodoro data={data.pomodoroCompacto} />
         <div className="mt-4 grid grid-cols-2 gap-2 w-full">
-          <button onClick={() => onTabChange?.("pomodoro")} className="flex items-center justify-center gap-1 rounded-lg bg-slate-900 text-white text-sm font-medium py-2">
+          <button onClick={() => navigate("/pomodoro")} className="flex items-center justify-center gap-1 rounded-lg bg-slate-900 text-white text-sm font-medium py-2">
             <Play className="w-4 h-4" /> Comenzar
           </button>
-          <button onClick={() => onTabChange?.("configuracion")} className="flex items-center justify-center gap-1 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium py-2">
+          <button onClick={() => navigate("/configuracion")} className="flex items-center justify-center gap-1 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium py-2">
             <Settings2 className="w-4 h-4" /> Configuración
           </button>
         </div>
-        <button onClick={() => onTabChange?.("tareas")} className="mt-2 w-full rounded-lg bg-orange-100 text-orange-700 text-sm font-medium py-2">
+        <button onClick={() => navigate("/tareas")} className="mt-2 w-full rounded-lg bg-orange-100 text-orange-700 text-sm font-medium py-2">
           Iniciar Tarea
         </button>
       </div>
