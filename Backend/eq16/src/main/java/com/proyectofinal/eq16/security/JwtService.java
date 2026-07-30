@@ -1,17 +1,19 @@
 package com.proyectofinal.eq16.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
-
-import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+
+import javax.crypto.SecretKey;
+
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 
 @Service
 public class JwtService {
@@ -20,7 +22,7 @@ public class JwtService {
             "clave-super-secreta-proyecto-final-eq16-jwt-2026-clave-super-secreta";
 
     private static final long EXPIRATION_TIME =
-            1000L * 60 * 60 * 24; // 24 horas
+            1000L * 60 * 60 * 24;
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(
@@ -28,8 +30,12 @@ public class JwtService {
         );
     }
 
-    public String extractUsername(String token) {
+    public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractUsername(String token) {
+        return extractEmail(token);
     }
 
     public <T> T extractClaim(
@@ -48,13 +54,15 @@ public class JwtService {
             Map<String, Object> extraClaims,
             UserDetails userDetails
     ) {
-
         return Jwts.builder()
                 .claims(extraClaims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date())
                 .expiration(
-                        new Date(System.currentTimeMillis() + EXPIRATION_TIME)
+                        new Date(
+                                System.currentTimeMillis()
+                                        + EXPIRATION_TIME
+                        )
                 )
                 .signWith(getSigningKey())
                 .compact();
@@ -64,11 +72,25 @@ public class JwtService {
             String token,
             UserDetails userDetails
     ) {
-
         try {
-            final String username = extractUsername(token);
+            final String username = extractEmail(token);
 
             return username.equals(userDetails.getUsername())
+                    && !isTokenExpired(token);
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isTokenValid(
+            String token,
+            String email
+    ) {
+        try {
+            final String username = extractEmail(token);
+
+            return username.equals(email)
                     && !isTokenExpired(token);
 
         } catch (Exception e) {
@@ -85,7 +107,6 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()

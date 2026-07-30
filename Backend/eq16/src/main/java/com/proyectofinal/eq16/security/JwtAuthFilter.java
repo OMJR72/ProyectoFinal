@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.proyectofinal.eq16.service.CustomUserDetailService;
-import com.proyectofinal.eq16.service.JwtService;
+import com.proyectofinal.eq16.security.JwtService;
 
 import java.io.IOException;
 

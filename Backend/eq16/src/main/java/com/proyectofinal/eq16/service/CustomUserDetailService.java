@@ -14,6 +14,7 @@ import com.proyectofinal.eq16.models.Usuario;
 import com.proyectofinal.eq16.repository.UsuarioRepository;
 import com.proyectofinal.eq16.repository.RolRepository;
 import com.proyectofinal.eq16.models.Rol;
+import com.proyectofinal.eq16.security.JwtService;
 
 @Service
 public class CustomUserDetailService {
@@ -44,7 +45,13 @@ public class CustomUserDetailService {
         usuario.setRol(rolRepository.findById(rol).orElseThrow(() -> new ResourceException("El rol '" + rol + "' no existe")));
         usuarioRepository.save(usuario);
 
-        String token = jwtService.generarToken(usuario.getEmail());
+        String token = jwtService.generateToken(
+                org.springframework.security.core.userdetails.User
+                        .withUsername(usuario.getEmail())
+                        .password(usuario.getPassword())
+                        .authorities("USER")
+                        .build()
+        );
         return new AuthResponse(token, usuario.getEmail());
     }
 }

@@ -1,40 +1,145 @@
-import React, { useState, useEffect } from 'react';
-import Login from './components/Login';
-import Sidebar from './components/Sidebar';
+import React, { useEffect, useState } from "react";
+import Login from "./components/Login";
+import Sidebar from "./components/Sidebar";
+import Navbar from "./components/Navbar";
+
+import Dashboard from "./components/Dashboard";
+import Tareas from "./components/Tareas";
+import Pomodoro from "./components/Pomodoro";
+import Estadisticas from "./components/Estadisticas";
+import Configuracion from "./components/Configuracion";
 
 export default function App() {
   const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [loading, setLoading] = useState(true);
 
-  // Al cargar la app, revisamos si ya hay sesión iniciada en localStorage
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+    const savedUser = sessionStorage.getItem("user");
+    const savedToken = sessionStorage.getItem("token");
+    const savedTab = localStorage.getItem("activeTab");
+
+    if (savedUser && savedToken) {
+      try {
+        setUser(JSON.parse(savedUser));
+
+        if (savedTab) {
+          setActiveTab(savedTab);
+        }
+      } catch (error) {
+        console.error(
+          "Error al recuperar la sesión:",
+          error
+        );
+
+        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("token");
+      }
     }
+
+    setLoading(false);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
+  const handleLoginSuccess = (userData) => {
+    setUser(userData);
+
+    sessionStorage.setItem(
+      "user",
+      JSON.stringify(userData)
+    );
+
+    const savedTab = localStorage.getItem("activeTab");
+
+    if (savedTab) {
+      setActiveTab(savedTab);
+    } else {
+      setActiveTab("dashboard");
+
+      localStorage.setItem(
+        "activeTab",
+        "dashboard"
+      );
+    }
   };
 
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+
+    localStorage.setItem(
+      "activeTab",
+      tab
+    );
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+
+    localStorage.removeItem("activeTab");
+
+    setUser(null);
+    setActiveTab("dashboard");
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-100">
+        <p className="text-slate-500">
+          Cargando...
+        </p>
+      </div>
+    );
+  }
+
   if (!user) {
-    return <Login onLoginSuccess={(userData) => setUser(userData)} />;
+    return (
+      <Login
+        onLoginSuccess={handleLoginSuccess}
+      />
+    );
   }
 
   return (
-    <div className="flex">
-      <Sidebar activeTab="dashboard" setActiveTab={() => {}} />
-      <main className="flex-1 p-6">
-        <h1 className="text-2xl font-bold">Bienvenido, {user.name || user.email}</h1>
-        <button 
-          onClick={handleLogout}
-          className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg text-sm"
-        >
-          Cerrar Sesión
-        </button>
-      </main>
+    <div className="flex min-h-screen bg-slate-100">
+
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={handleTabChange}
+      />
+
+      <div className="flex-1 min-w-0">
+
+        <Navbar
+          activeTab={activeTab}
+          onLogout={handleLogout}
+        />
+
+        <main className="p-6">
+
+          {activeTab === "dashboard" && (
+            <Dashboard />
+          )}
+
+          {activeTab === "tareas" && (
+            <Tareas />
+          )}
+
+          {activeTab === "pomodoro" && (
+            <Pomodoro />
+          )}
+
+          {activeTab === "estadisticas" && (
+            <Estadisticas />
+          )}
+
+          {activeTab === "configuracion" && (
+            <Configuracion />
+          )}
+
+        </main>
+
+      </div>
+
     </div>
   );
 }
