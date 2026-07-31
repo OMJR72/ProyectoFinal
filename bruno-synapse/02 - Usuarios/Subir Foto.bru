@@ -1,0 +1,23 @@
+meta {
+  name: Subir Foto
+  type: http
+  seq: 8
+}
+
+post {
+  url: http://168.231.75.12:5173/api/usuarios/subir-foto
+  body: multipart-form
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:multipart-form {
+  file: @file(C:\ruta\a\tu\foto.jpg)
+}

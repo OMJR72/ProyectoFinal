@@ -1,0 +1,29 @@
+meta {
+  name: Actualizar Sesión
+  type: http
+  seq: 23
+}
+
+put {
+  url: http://168.231.75.12:5173/api/sesiones/1
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "fecha_inicio": "2025-01-15T10:00:00",
+    "fecha_fin": "2025-01-15T10:30:00",
+    "duracion_minutos": 30,
+    "estado": "COMPLETADA"
+  }
+}

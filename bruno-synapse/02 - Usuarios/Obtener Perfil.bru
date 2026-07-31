@@ -1,0 +1,20 @@
+meta {
+  name: Obtener Perfil
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://168.231.75.12:5173/api/usuarios/perfil
+  body: none
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}

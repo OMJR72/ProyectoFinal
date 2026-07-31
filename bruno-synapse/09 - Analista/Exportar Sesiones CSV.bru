@@ -1,0 +1,19 @@
+meta {
+  name: Exportar Sesiones CSV
+  type: http
+  seq: 35
+}
+
+get {
+  url: http://168.231.75.12:5173/api/analista/exportar/sesiones
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}

@@ -1,0 +1,20 @@
+meta {
+  name: Eliminar Actividad
+  type: http
+  seq: 19
+}
+
+delete {
+  url: http://168.231.75.12:5173/api/actividades/1
+  body: none
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}

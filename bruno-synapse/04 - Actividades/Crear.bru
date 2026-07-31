@@ -1,0 +1,29 @@
+meta {
+  name: Crear Actividad
+  type: http
+  seq: 17
+}
+
+post {
+  url: http://168.231.75.12:5173/api/actividades
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "nombre": "Revisión de código",
+    "descripcion": "Revisar PR del módulo de auth",
+    "tipo": "DESARROLLO",
+    "id_sesion": 1
+  }
+}

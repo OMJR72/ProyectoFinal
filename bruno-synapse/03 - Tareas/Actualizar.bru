@@ -1,0 +1,30 @@
+meta {
+  name: Actualizar Tarea
+  type: http
+  seq: 13
+}
+
+put {
+  url: http://168.231.75.12:5173/api/tareas/1
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "titulo": "Estudiar Spring Boot",
+    "descripcion": "Módulo completado",
+    "fecha_limite": "2025-12-31",
+    "prioridad": "MEDIA",
+    "estado": "COMPLETADA"
+  }
+}

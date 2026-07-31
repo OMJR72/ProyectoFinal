@@ -1,0 +1,20 @@
+meta {
+  name: Listar Prioritarias
+  type: http
+  seq: 10
+}
+
+get {
+  url: http://168.231.75.12:5173/api/tareas/prioritarias
+  body: none
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}

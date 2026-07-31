@@ -1,0 +1,28 @@
+meta {
+  name: Actualizar Perfil
+  type: http
+  seq: 6
+}
+
+put {
+  url: http://168.231.75.12:5173/api/usuarios/perfil
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "nombre": "Juan",
+    "apellido": "Pérez",
+    "telefono": "1122334455"
+  }
+}

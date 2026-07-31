@@ -1,0 +1,20 @@
+meta {
+  name: Eliminar Sesión
+  type: http
+  seq: 24
+}
+
+delete {
+  url: http://168.231.75.12:5173/api/sesiones/1
+  body: none
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
