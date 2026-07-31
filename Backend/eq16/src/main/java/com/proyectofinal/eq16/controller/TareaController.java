@@ -27,8 +27,7 @@ public class TareaController {
 
     @GetMapping
     public ResponseEntity<List<Tarea>> listar() {
-        Usuario usuario = usuarioContext.getCurrentUser();
-        return ResponseEntity.ok(tareaService.listarPorUsuario(usuario.getId()));
+        return ResponseEntity.ok(tareaService.listar());
     }
 
     @GetMapping("/prioritarias")

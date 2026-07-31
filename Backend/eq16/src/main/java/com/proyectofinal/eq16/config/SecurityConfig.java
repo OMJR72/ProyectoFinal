@@ -77,10 +77,10 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/auth/login",
-                                "/api/auth/register/**",
-                                "/api/auth/tareas/**"
+                                "/api/auth/register/**"
                         ).permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/api/tareas/**")
                         .requestMatchers(
                                 HttpMethod.OPTIONS,
                                 "/**"
