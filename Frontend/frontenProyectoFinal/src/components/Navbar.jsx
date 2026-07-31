@@ -46,7 +46,7 @@ export default function Navbar() {
     ? `${user.nombre?.charAt(0) ?? ""}${user.apellido?.charAt(0) ?? ""}`
     : "U";
 
-  const fotoPerfil = user?.foto ? `http://localhost:8080${user.foto}` : null;
+  const fotoPerfil = user?.foto ?? null;
 
   const handleLogout = () => {
     logout();

@@ -159,7 +159,7 @@ public class AnalistaController {
         csv.append("ID,Usuario,Fecha Inicio,Fecha Fin,Duración (min),Estado\n");
         for (Sesion s : sesiones) {
             String usuario = s.getUsuario() != null ? s.getUsuario().getEmail() : "";
-            csv.append(s.getId_sesion()).append(",")
+            csv.append(s.getSesion_id()).append(",")
                     .append(escaparCSV(usuario)).append(",")
                     .append(s.getFecha_inicio() != null ? s.getFecha_inicio() : "").append(",")
                     .append(s.getFecha_fin() != null ? s.getFecha_fin() : "").append(",")
